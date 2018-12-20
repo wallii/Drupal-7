@@ -1,0 +1,269 @@
+<?php
+    /*
+    desc          : Implements hook_block_info().
+    function Name : menu_traverse_block_info
+    purpose       : This hook declares to Drupal what blocks are provided by your module 
+    and can optionally specify initial block configuration settings 
+    Date          : 31/10/2017
+  */
+function   cmf_menunextprev_block_info() {
+  $blocks = array();
+  $blocks['menu_nextprev'] = array(
+    'info' => t('Next Prev Menu'),
+  );
+  return $blocks;
+}
+   /*
+    desc          : Implements hook_block_view().
+    function Name : menu_traverse_block_view
+    purpose       : Return a rendered or renderable view of a block.
+                    $delta :  Which block to render. This is a unique identifier for the block within the module, defined in hook_block_info().
+    Date          : 31/10/2017
+  */ 
+function  cmf_menunextprev_block_view($delta = '') {
+  drupal_add_css(drupal_get_path('module','menu_traverse').'/css/menu_traverse.css', 'file');
+  $block = array();
+  switch ($delta) {
+    case 'menu_nextprev':
+      $block['subject'] = '';
+      $block['content'] = _cmf_menunextprev_create_block();
+    break;  
+  }
+  return $block;
+}
+  /*
+    function Name : _menu_traverse_create_block
+    purpose       : this is a callback function defin logic and what to you want with your block
+    Date          : 31/10/2017 
+  */   
+function _cmf_menunextprev_create_block(){
+  global $base_url;
+  global $language;
+  $get_var = variable_get('traverse_menu_id');
+  if(!empty($get_var)){
+    $menu = variable_get('traverse_menu_id');
+  }else{
+    $menu = "main-menu";
+  }
+  $asd = menu_get_active_trail();
+  $cn = count($asd);
+  if($cn > 1){
+    $active_menu_array = $asd[$cn-1];
+    if($active_menu_array['menu_name'] == $menu) {      
+      $as = traverse_nextprev();
+      $nextarry = $as['next'];
+      if(!empty($nextarry)) {
+        $linkpath = $as['next']['link_path']; 
+        $exp = explode('/',$linkpath);
+        if($as['next']['language'] == 'und') {
+          $linktitle_next = t($as['next']['link_title']);
+        } else {
+          $linktitle_next = $as['next']['link_title'];  
+        }
+
+        $linktitle_next = $as['next']['link_title'];
+        if($exp[0] == 'node') {
+          $url_alias1 = drupal_get_path_alias($linkpath);
+        }else if($exp[0] == 'taxonomy') {
+          $url_alias1 = drupal_get_path_alias($linkpath);
+        } else {
+          $url_alias1 = $linkpath;
+        }
+        if($language->language =='en') {
+          $url_alias5 = $url_alias1;
+        } else {
+          $url_alias5 = $language->language.'/'.$url_alias1;
+        }
+      }
+      $pretarry = $as['prev']; 
+      if(!empty($pretarry)) {
+        $linkpathpre = $as['prev']['link_path']; 
+        $exp1 = explode('/',$linkpathpre);
+
+        if($as['prev']['language'] == 'und') {
+          $linktitle_pre = t($as['prev']['link_title']);
+        } else {
+          $linktitle_pre = $as['prev']['link_title'];  
+        }
+
+        $linktitle_pre = $as['prev']['link_title'];
+        if($exp1[0] == 'node') {
+          $url_alias2 = drupal_get_path_alias($linkpathpre);
+        } else if($exp1[0] == 'taxonomy') {
+          $url_alias2 = drupal_get_path_alias($linkpathpre);
+        } else  {
+          $url_alias2 = $linkpathpre;
+        }
+        if($language->language =='en') {
+          $url_alias3 = $url_alias2;
+        } else {
+          $url_alias3 = $language->language.'/'.$url_alias2;
+        }
+
+      }
+      $home = url(variable_get('site_frontpage', 'node'), array('absolute' => TRUE));
+      $str = "<ul class='nextpremenu'>";
+      if($as['prev']['external'] == 1) {
+        $str .= "<li class='pre_menu'><a href='".$linkpathpre."'>".t($linktitle_pre)."</a></li>"; 
+      } else if($as['prev']['link_path'] == '<nolink>') {
+
+      } else {
+        $str .= "<li class='pre_menu'><a href='".$base_url."/".$url_alias3."'>".t($linktitle_pre)."</a></li>";  
+      }
+
+      $str .= "<li class='home_menu'><a href='".$home."/'>".t('Home')."</a></li>";
+      if($as['next']['external'] ==1) {
+        $str .= "<li class='next_menu'><a href='".$linkpath."'>".t($linktitle_next)."</a></li>"; 
+      } else {
+        $str .= "<li class='next_menu'><a href='".$base_url."/".$url_alias5."'>".t($linktitle_next)."</a></li>"; 
+      }
+      $str .= "</ul>";
+    }
+  }
+  return $str;
+} 
+   /*
+    function Name : traverse_nextprev
+    purpose       : this is a main function , it returns the associative array for nex and prev menu link
+    Date          : 31/10/2017
+  */    
+function traverse_nextprev(){  
+  global $language;
+  $current_lang = $language->language;
+  $asd = menu_get_active_trail();
+  $cn = count($asd);
+  $get_var = variable_get('traverse_menu_id');
+  if(!empty($get_var)){
+    $menu = variable_get('traverse_menu_id');
+  }else{
+    $menu = "main-menu";
+  }
+  if($cn > 1){
+    $active_menu_array = $asd[$cn-1];
+    if($active_menu_array['menu_name'] == $menu) {
+      $currentMenu_weight = $active_menu_array['weight'];
+
+      if($active_menu_array['plid'] == 0) {
+        $mainmenu = menu_tree_all_data($menu);
+        $data = array();
+        $i=0;
+        foreach($mainmenu as $item) {
+          $link = $item["link"];
+          if ($link["hidden"]) {
+            continue;
+          }
+          $ff = url($link["href"]);
+          if (!strpos($ff, '%3Cnolink%3E') && $item['link']['link_title'] !='Home') {
+            $data[] = $link; 
+          } 
+          $i ++;
+        }
+        foreach($data as $key=>$finaldata) {
+          if($active_menu_array['mlid'] == $finaldata['mlid']) {
+            $current_key = $key;
+          }
+        }
+        # previous array 
+        if($data[$current_key-1]) {
+          $previous_array = $data[$current_key-1];
+        } else {
+          $previous_array = array(); 
+        }
+        # Next array 
+        if($data[$current_key+1]) {
+          $next_array = $data[$current_key+1];
+        } else {
+          $next_array = array(); 
+        }
+        return $final_array = array('prev' =>$previous_array,'next' => $next_array);
+      } else {
+        $actmlid = $active_menu_array['mlid']; 
+        $actplid = $active_menu_array['plid'];
+        $actlang =  $active_menu_array['language']; 
+        $result = db_select('menu_links', 't')
+        ->fields('t')
+        ->condition('t.plid',$actplid)
+        ->condition('t.hidden',0)
+        ->condition(
+          db_or()
+            ->condition('t.language',$current_lang)
+            ->condition('t.language','und')
+        )
+        ->orderby('t.weight',asc)
+        ->execute()
+        ->fetchAll();
+        foreach($result as $key=>$finaldata) {
+          $finalarr[] = (array)$finaldata;
+          if($actmlid == $finaldata->mlid) {
+            $currentkey = $key;
+          }
+        }
+        if(is_array($finalarr[$currentkey+1])) {
+          $nextkey =  $finalarr[$currentkey+1];
+        } else {
+          $nextkey =  array();
+        }
+        if(is_array($finalarr[$currentkey-1])) {
+          $previouskey = $finalarr[$currentkey-1];
+        } else {
+          $previouskey = array();
+        }
+        return array('next'=>$nextkey,'prev'=>$previouskey);
+      }
+    } 
+  } 
+}
+function cmf_menunextprev_menu(){
+  $items['admin/config/development/menu_traverse'] = array(
+    'title' => 'Menu Traverse settings',
+    'page callback' => 'traverse_form',
+    'access callback' => 'traverse_access',
+    'type' => MENU_NORMAL_ITEM,
+  ); 
+  return $items;
+}
+
+/**
+ * Determine whether the user has permission to use menu_block module.
+ */
+function traverse_access($account = NULL) {
+  return user_access('administer blocks', $account) && user_access('administer menu', $account);
+}
+
+function traverse_form(){
+  return drupal_get_form('custom_traverse_form');
+}
+
+function custom_traverse_form($form, &$form_state){
+  global $base_url;
+  $form = array();
+  $get_var = variable_get('traverse_menu_id');
+  if(!empty($get_var)){
+    $menu = variable_get('traverse_menu_id');
+  }else{
+    $menu = "main-menu";
+  }
+  $form['traverse_menu_id'] = array(
+    '#title' => t('Enter Machine name of menu'),
+    '#type' => 'textfield',
+    '#description' => t('If not main menu the provide the menu name.'),
+    '#required' => true,
+    '#default_value' => $menu,
+  );
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  return $form;
+}
+function custom_traverse_form_submit($form, &$form_state){
+  global $base_url;
+  $menu_names = menu_get_names();
+  if(in_array($form_state['input']['traverse_menu_id'],$menu_names)){
+    variable_set('traverse_menu_id', $form_state['input']['traverse_menu_id']);
+    drupal_set_message(t('Your configuration has been saved.'));
+    drupal_goto($base_url.'/admin/config/development/menu_traverse');
+  }else{
+    drupal_set_message(t('Please enter valid machine name of menu.'), 'error');
+  } 
+}

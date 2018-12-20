@@ -1,0 +1,10 @@
+name = Menu Next Prev
+dependencies[] = menu
+package = CMF
+description = This Module creates a block for next and prev menu          .
+configure = admin/config/development/menu_traverse
+version = "7.x-1.1"
+core = "7.x"
+project = "Menu Next Prev"
+datestamp = "1353872502"
+waliullahmca786@gmail.com
