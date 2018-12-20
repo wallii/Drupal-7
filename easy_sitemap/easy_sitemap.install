@@ -1,0 +1,78 @@
+<?php
+
+function easy_sitemap_install(){
+	drupal_install_schema('easy_sitemap');
+	$all_menu_list = menu_get_menus(); 
+	$query = db_insert('easy_sitemap')->fields(array(
+		'menu_name','menu_machine_name','is_show','sitemap_order')
+	);
+	foreach ($all_menu_list as $key => $value) {
+		$not_listed = array("user-menu","management","navigation");
+		if(!in_array($key,$not_listed)){
+			$query->values(array(
+				'menu_name' => $value,
+				'menu_machine_name'=>$key,
+				'is_show'=>1,
+				'sitemap_order'=>0
+				)
+			);
+		}else{
+			$query->values(array(
+				'menu_name' => $value,
+				'menu_machine_name'=>$key,
+				'is_show'=>0,
+				'sitemap_order'=>0
+				)
+			);
+		}
+	}
+	$query->execute();  
+}
+
+function easy_sitemap_uninstall(){
+	drupal_uninstall_schema('easy_sitemap');
+ 
+}
+
+
+function easy_sitemap_schema(){
+	$schema['easy_sitemap'] = array(
+		'description' => 'Store sitemap Settings',
+		'fields' => array(
+		  'id' => array(
+			'type' => 'serial',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+			'description' => 'Unique identifier for the {Sitemap}.',
+		  ),   
+		  'menu_name' => array(
+			'type' => 'varchar',
+			'length' => 128,
+			'not null' => FALSE,
+			'description' => 'Menu Name.',
+		  ),
+		   'menu_machine_name' => array(
+			'type' => 'varchar',
+			'length' => 128,
+			'not null' => FALSE,
+			'description' => 'Menu Machine Name',
+		  ),   
+		  'is_show' => array(
+			'type' => 'varchar',
+			'length' => 128,
+			'not null' => FALSE,
+			'description' => 'show on site map.',
+		  ),
+		  'sitemap_order' => array(
+			'type' => 'varchar',
+			'length' => 128,
+			'not null' => FALSE,
+			'description' => 'Csite map order.',
+		  ),
+		  
+		),
+		'primary key' => array('id'),
+	);
+  
+	return $schema;
+}
