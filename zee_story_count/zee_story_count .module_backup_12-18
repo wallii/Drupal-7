@@ -1,0 +1,523 @@
+<?php
+/*
+ Hook_init()
+**/
+function zee_story_count_init(){
+}
+/*
+  Hook_menu()
+  for URL register
+*/
+function zee_story_count_menu(){
+
+	
+	$items['admin/reports/story-count'] = array(
+		'title' => 'Story Count Form',
+		'page callback' => 'set_site_for_story_count',
+		'access callback' => 'zee_story_count_access',
+		'type' => MENU_NORMAL_ITEM,
+	);
+	$items['admin/config/development/story-count-configuration'] = array(
+		'title' => 'Story Count Section Configuration',
+		'page callback' => 'story_count_configuration_form',
+		'access callback' => 'zee_story_count_access',
+		'type' => MENU_NORMAL_ITEM,
+	);
+	$items['admin/reports/story-count/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+	
+	return $items;
+}
+/*
+ Hoom Menu story count
+ Page Callback Function
+*/
+function set_site_for_story_count() {
+
+  @$output = render(drupal_get_form('custom_story_count_form'));
+  if(arg(3) =='list') {
+	    $adr = arg(4);
+		
+	   if(isset($adr)) {
+		   $firstExplode = explode('*',$adr);
+		   $cType = $firstExplode[2];
+           $cTypeExp = explode('-',$cType);
+		
+		   if((string)$cTypeExp[1]!='0') {
+			  @$output .= zee_story_count_table(arg(4)); 
+		   } else {
+			   @$output .= zee_story_count_table_all_section_list(arg(4)); 
+		   }
+		   
+	   } 
+	  
+  }
+  
+  return $output;	
+}
+/*
+ get Count with listing of all content type 
+
+**/
+function zee_story_count_table_all_section_list($arg) {
+	# get All user list
+	$users = entity_load('user');
+	$firstExplode = explode('*',$arg);
+	
+	$startDate = $firstExplode[0];
+	$sdateExp = explode('_',$startDate);
+	if($sdateExp[1]) {
+	$stfDate = explode('-',$sdateExp[1]);
+	$sTime =  mktime(0, 0, 0, $stfDate[1], $stfDate[2]-1, $stfDate[0]);
+	}
+	$endDate = $firstExplode[1];
+	$edateExp = explode('_',$endDate);
+	if($edateExp[1]) {
+	$etfDate = explode('-',$edateExp[1]);
+	$eTime =  mktime(0, 0, 0, $etfDate[1], $etfDate[2]+1, $etfDate[0]);
+	}
+	# get all content type
+	$query = db_select('node_type', 'nt');
+	$query->fields('nt', array('type', 'name','orig_type'));
+	
+	@$output.='<table class="story_count_table"><tr><th>'.t('Name').'</th>';
+    foreach($query->execute() as $ctype) {
+	 @$output.= '<th>'.t($ctype->name).'</th>';
+	} 
+    @$output.= '<th>'.t('Total Count').'</th></tr>';	
+	
+	$userWisecnt = 0;
+    foreach($users as $alluser) {
+		if($alluser->name!='') {
+			@$output.= '<tr><td>'.$alluser->name.'</td>';
+            $usercnt = 0;
+			foreach($query->execute() as $ctypes) {
+                # count all node by user Base
+				# get story count by user
+                $query1 = db_select('node', 'n');
+				$query1->fields('n', array('type', 'nid','uid'));
+				$query1->condition('n.status','1');
+				$query1->condition('n.uid',$alluser->uid);
+			    $query1->condition('n.type',$ctypes->type);
+				if($sTime !='' && $eTime !='') {
+					if($sTime!=$eTime) {
+						$query1->condition('n.created', array($sTime, $eTime), 'BETWEEN');
+					}
+				}
+				$resultc1 = $query1->execute();
+				$num_of_resultsv1 = $resultc1->rowCount();
+				$usercnt+= $num_of_resultsv1;
+				@$output.= '<td>'.$num_of_resultsv1.'</td>';
+			    $dataw[$alluser->name][] = $num_of_resultsv1;
+			}
+			$dataw[$alluser->name][] = $usercnt;
+			@$output.= '<td>'.$usercnt.'</td>';
+
+			@$output.= '</tr>';	
+		}
+		
+	}
+    @$output.='<tr><th>Total</th>';
+	
+	
+	foreach($dataw as $da=>$value) {
+		$datag[] =$value;
+	}
+	foreach($datag[0] as $key=>$value) {
+		$rt=0;
+		for($i=0;$i<=count($dataw)-1; $i++ ) { 
+              $rt+=$datag[$i][$key];  
+ 		   }
+	  $databn[] = $rt;	   
+	}
+	foreach($databn as $valueFinal) {
+		@$output.='<th>'.$valueFinal.'</th>';
+	}
+	
+	@$output.='</tr>';	
+	@$output.='</table>';	
+	return $output;	 
+	
+}
+# Get all count with category wise
+function zee_story_count_table($arg) {
+	
+	$users = entity_load('user');
+	
+	
+    $firstExplode = explode('*',$arg);
+	
+	$startDate = $firstExplode[0];
+	$sdateExp = explode('_',$startDate);
+
+	
+	
+	if($sdateExp[1]) {
+	
+		$stfDate = explode('-',$sdateExp[1]);
+		
+	   $sTime =  mktime(0, 0, 0, $stfDate[1], $stfDate[2]-1, $stfDate[0]);
+	  
+	}
+	
+	$endDate = $firstExplode[1];
+	$edateExp = explode('_',$endDate);
+	if($edateExp[1]) {
+		$etfDate = explode('-',$edateExp[1]);
+		$eTime =  mktime(0, 0, 0, $etfDate[1], $etfDate[2]+1, $etfDate[0]);
+	}
+	
+	$cType = $firstExplode[2];
+    $cTypeExp = explode('-',$cType);
+	
+	$section = $firstExplode[3];
+	$secExp = explode('_',$section);
+	
+	
+	
+	
+	$total = 0;
+	foreach($users as $user) {
+		if($user->name !='') {
+			$rows12[] = $user->uid;
+			
+			$query = db_select('node', 'n');
+	        $query->fields('n', array('nid'));
+            $query->condition('n.status', 1);
+			$query->condition('n.uid', $user->uid);
+			if($cTypeExp[1]) {
+		      $query->condition('n.type', $cTypeExp[1]);
+	        }
+			if($sTime !='' && $eTime !='') {
+				
+				if($sTime!=$eTime) {
+					
+					$query->condition('n.created', array($sTime, $eTime), 'BETWEEN');
+				}
+				
+			}
+			if($secExp[1]) {
+		    		
+		    $fieldTableName = variable_get('section_'.$cTypeExp[1]);
+		    //echo $fieldTableName; die;
+            if($fieldTableName!='') {
+			//echo "helo"; die;
+			$query->join('field_data_'.$fieldTableName,'ft','n.nid = ft.entity_id');
+			$query->condition('ft.'.$fieldTableName.'_tid',$secExp[1]);
+			}			
+			
+	        }
+			
+            $result = $query->execute();
+			$num_of_results = $result->rowCount();
+			$total+= $num_of_results; 
+			$rows[] = array($user->name,$num_of_results);
+		}
+		
+	}
+	
+    $output = theme('table', array('header' => $header, 'rows'=> $rows));
+	$headTotal = array('Total', $total);
+	$output.= theme('table', array('header' => $headTotal));
+    return $output;
+}
+
+function custom_story_count_form($form, &$form_state) {
+	drupal_add_css(drupal_get_path('module', 'zee_story_count') .'/css/zee_story_count.css');
+    
+	if(arg(3) =='list') {
+	
+	   $firstExplode = explode('*',arg(4));
+	   $startDate = $firstExplode[0];
+	   $sdateExp = explode('_',$startDate);
+	   
+	   $endDate = $firstExplode[1];
+	   $edateExp = explode('_',$endDate);
+	   $cType = $firstExplode[2];
+       $cTypeExp = explode('-',$cType);
+	   $sectionT= $firstExplode[3];
+	   $sectionExp = explode('_',$sectionT);
+	   $sectionFinal = $sectionExp[1];
+	   
+    }
+	$query = db_select('node_type', 'nt');
+    $query->fields('nt', array('type', 'name','orig_type'));
+    $result = $query->execute();
+	$cType = array('--Select--');
+	foreach ($result as $value) {
+		$cType[$value->type] = $value->name;
+		$condType[] = $value->type;
+	}
+	$form = array();
+	
+	$form['start_date'] = array(
+		'#title'=>t('From'),
+		'#date_format' => 'Y-m-d',
+		'#type' => 'date_popup',
+		'#weight'=>0,
+		'#required' => TRUE,
+		'#attributes' => array(
+						'autocomplete' => 'off',
+		),
+		'#default_value' => isset($sdateExp[1]) ? $sdateExp[1] :'' ,
+		
+		
+	);
+	$form['end_date'] = array(
+		'#title'=>t('To'),
+		'#date_format' => 'Y-m-d',
+		'#type' => 'date_popup',
+		'#weight'=>1,
+		'#required' => TRUE,
+		'#attributes' => array(
+						'autocomplete' => 'off',
+		),
+		'#default_value' => isset($edateExp[1]) ? $edateExp[1] :'' ,
+		
+	);
+	$form['content_type'] = array(
+    '#type' => 'select',
+    '#options' => $cType,
+    '#title' => 'Select Content Type',
+	'#weight'=>2,
+	'#default_value' => isset($cTypeExp[1]) ? $cTypeExp[1] :'' ,
+	'#ajax' => array(
+        'callback' => 'get_section_by_ajax_callback',
+		'event'     => 'change',
+        'wrapper' => 'replace_section_field',
+      ),
+    );
+	
+	/*
+	  get Dropdown value
+	*/
+	if(isset($sectionFinal)) {
+		if((string)$sectionFinal != '0') {
+			
+			$ctMachineName = $cTypeExp [1];
+			$option = array(''=>'--select--');
+			$vocaBularyMachineName = variable_get('count_'.$ctMachineName);
+			if($vocaBularyMachineName!='') {
+			$vid = taxonomy_vocabulary_machine_name_load($vocaBularyMachineName)->vid;
+			$terms = taxonomy_get_tree($vid);
+			foreach($terms as $term) {
+			$option[$term->tid] = $term->name;
+			}
+
+			}
+			
+		} else {
+			$option = array('--select---');
+		}
+	} else {
+		$option = array('--select---');
+	}
+	
+	
+	#  End Code For drowdown value
+	$form['select_section']= array(
+        '#type' => 'select',
+        '#title' => t('Select Section'),
+        '#options' => $option,
+        '#prefix' => '<div id="replace_section_field">',
+        '#suffix' => '</div>', 
+		'#weight'=>3,
+		'#default_value' => isset($sectionFinal) ? $sectionFinal :'' ,
+		'#validated' => True,
+		
+        );
+	$form['submit_button'] = array(
+		'#type' => 'submit',
+		'#value' => t('Search'),
+		'#weight'=>4,
+		'#submit' => array('count_admin_filter_form_submit_filter'),
+		
+	);
+	$form['export_excel'] = array(
+		'#type' => 'submit',
+		'#value' => t('Export'),
+		'#weight'=>5,
+		'#submit' => array('export_excel_form_submit_filter'),
+		
+	);
+	
+	
+	return $form;
+}
+/*
+reset Function
+*/
+
+function zee_story_count_form_reset($form, &$form_state) {
+	$form_state['rebuild'] = FALSE;
+}
+
+/*
+ Export Excell functionality
+*/
+function export_excel_form_submit_filter($form, &$form_state) {
+	
+	$sDate = $form_state['values']['start_date'];
+	$eDate = $form_state['values']['end_date'];
+	
+	$section = $form_state['values']['select_section'];
+	$header = array('Author Name', 'Count');
+	$users = entity_load('user');
+	if($sDate!='') {
+	$stfDate = explode('-',$sDate);
+    $sTime =  mktime(0, 0, 0, $stfDate[1], $stfDate[2]-1, $stfDate[0]);
+	}
+	if($eDate!='') {
+	$etfDate = explode('-',$eDate);
+	$eTime =  mktime(0, 0, 0, $etfDate[1], $etfDate[2]+1, $etfDate[0]);
+	}
+	
+	$total = 0;
+	foreach($users as $user) {
+		 
+		if($user->name !='') {
+			$rows12[] = $user->uid;
+			
+			$query = db_select('node', 'n');
+	        $query->fields('n', array('nid'));
+            $query->condition('n.status', 1);
+			$query->condition('n.uid', $user->uid);
+			
+			if((string)$cType != '0') {
+				
+		      $query->condition('n.type', $cType);
+	        }
+			if($sTime !='' && $eTime !='') {
+				if($sTime!=$eTime) {
+					$query->condition('n.created', array($sTime, $eTime), 'BETWEEN');
+				}
+			}
+			if((string)$section!='0') {
+				$fieldTableName = variable_get('section_'.$cType);	
+				if($fieldTableName!='') {
+					$query->join('field_data_'.$fieldTableName,'ft','n.nid = ft.entity_id');
+					$query->condition('ft.'.$fieldTableName.'_tid',$section);
+				}			
+			}
+			$result = $query->execute();
+			$num_of_results = $result->rowCount();
+			$total+= $num_of_results; 
+			$data =  array();
+			$data[] = t($user->name);
+		    $data[] = t($num_of_results);
+			$xls_content_row .= implode("\t", array_values($data)) . "\r\n";
+			unset($data);
+		}
+		
+	}
+	$data2 = array(' ','==');
+	$data1 = array('total',$total);
+	$xls_content_row .= implode("\t", array_values($data2)) . "\r\n";
+	$xls_content_row .= implode("\t", array_values($data1)) . "\r\n";
+	$xls_content_header = implode("\t", array_values($header)) . "\r";
+	$xls_content .= $xls_content_header . "\n" . $xls_content_row;
+
+	$filename = 'count_result.xls';
+	header("Expires: 0");
+	header("Pragma: public");
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+	header('Content-type: application/ms-excel');
+	header('Content-Disposition: attachment;filename=count_result.xls');
+	print $xls_content;
+	exit();
+	
+}
+#ffh
+function count_admin_filter_form_submit_filter($form, &$form_state) {
+	
+	$sDate = $form_state['values']['start_date'];
+	$eDate = $form_state['values']['end_date'];
+	$cType = $form_state['values']['content_type'];
+	$section = $form_state['values']['select_section'];
+	$value = 'sdate_'.$sDate.'*enddate_'.$eDate.'*ctype-'.$cType.'*section_'.$section;
+	$form_state['redirect'] = 'admin/reports/story-count/list/' .$value;
+}
+#----
+/*
+ Ajax Call Back
+*/
+function get_section_by_ajax_callback($form, &$form_state) {
+	$ctMachineName = $form_state['values']['content_type'];
+	$option = array(''=>'--select--');
+	$vocaBularyMachineName = variable_get('count_'.$form_state['values']['content_type']);
+	if($vocaBularyMachineName!='') {
+		$vid = taxonomy_vocabulary_machine_name_load($vocaBularyMachineName)->vid;
+		$terms = taxonomy_get_tree($vid);
+		foreach($terms as $term) {
+			$option[$term->tid] = $term->name;
+		}
+		
+	}
+	
+    
+	$form['select_section']['#options'] = $option;
+	 return $form['select_section'];
+}
+function story_count_configuration_form(){
+	return drupal_get_form('custom_story_setting_form');
+}
+function custom_story_setting_form($form, &$form_state) {
+	
+	$query = db_select('node_type', 'nt');
+    $query->fields('nt', array('type', 'name','orig_type'));
+    $result = $query->execute();
+	$form = array();
+	foreach ($result as $value) {
+		$form['setting']['mark_'.$value->type] = array(
+		'#type' => 'markup',
+		'#markup' => '<h2>'.$value->name.'</h2>',
+		'#tree' => true,
+		);	
+	  $form['setting']['voca_'.$value->type]= array(
+        '#type' => 'textfield',
+        '#title' => t('Vocabulary Machine Name'),
+        '#description' => t('Vocabulary Machine Name'),
+		'#default_value' =>@variable_get('count_'.$value->type),
+       
+        );
+	  $form['setting']['field_'.$value->type]= array(
+        '#type' => 'textfield',
+        '#title' => t('Section Field Machine Name'),
+        '#description' => t('Section Field Machine Name'),
+		'#default_value' =>@variable_get('section_'.$value->type),
+       
+        );	
+		
+	}
+	
+	$form['submit_button'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit'),
+	);
+    return $form;
+	
+}
+function custom_story_setting_form_submit($form, &$form_state) {
+	global $base_url;
+	
+	$query = db_select('node_type', 'nt');
+    $query->fields('nt', array('type', 'name','orig_type'));
+    $result = $query->execute();
+	foreach($result as $value) {
+		variable_set('count_'.$value->type,$form_state['values']['voca_'.$value->type]);
+		variable_set('section_'.$value->type,$form_state['values']['field_'.$value->type]);
+	}
+	drupal_set_message(t('Your configuration has been saved.'));
+    drupal_goto($base_url.'/admin/config/development/story-count-configuration');
+	
+	
+}
+/**
+ * Determine whether the user has permission to use menu_block module.
+ */
+function zee_story_count_access($account = NULL) {
+	return user_access('administer blocks', $account) && user_access('administer menu', $account);
+}

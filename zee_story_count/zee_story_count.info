@@ -1,0 +1,10 @@
+name = Story Count
+package = ZEE
+description = Allows Developer to define custom Code.
+configure = admin/config/development/story-count-configuration
+
+version = "7.x-1.1"
+core = "7.x"
+project = "ZEE"
+datestamp = "1353872502"
+waliullahmca786@gmail.com

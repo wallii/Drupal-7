@@ -1,0 +1,8 @@
+#custom-story-count-form .container-inline-date, .form-item-content-type, #replace_section_field{
+	display: inline-block;
+}
+.container-inline-date .form-item-end-date{margin-top:-45px!important}
+.container-inline-date .form-item-start-date{margin-top:-45px!important}
+
+
+
