@@ -1,0 +1,70 @@
+<?php
+
+
+/**
+ * Implements hook_custom_theme().
+ *
+ 
+
+function zeenews_mobile_custom_theme() {
+  // Allow the user to request a particular theme via a query parameter.
+  //return 'zn_mobile';
+  	if (isset($_SERVER['HTTP_X_CUA']))
+	{
+		if ($_SERVER['HTTP_X_CUA'] == 'mobile_version')
+		{
+			return 'zeemobile_th';
+		}
+	}
+  
+  if (isset($_GET['theme1'])) {
+    return 'zn_mobile';
+	//return $_GET['theme'];
+  }elseif(isset($_GET['theme'])){	  
+	  return 'zeemobile_th';
+  }
+}
+
+
+
+function zeenews_mobile_views_query_alter(&$view, &$query) {
+	
+  //simple example: change the order of the master display
+  //if you want to do it only  on a certain display add something 
+  // like  "&&$view->current_display == 'panel_page_1'"
+  if ($view->name == 'zn_mobile_hp_latest_news' && $view->current_display=='block_10'){
+	  //$query->where[1]['conditions'][1] = array();
+	 // $query->where[1]['conditions'][2] = array();
+		$value1 = $query->where[1]['conditions'][0]['value'];
+		$value2 = $query->where[0]['conditions'][0]['value'];
+		//$value3 = $query->where[1]['conditions'][1]['field'];
+		//$value4 = $query->where[0]['conditions'][1]['value'];
+	  
+		$query->where[0]['conditions'][0] = array('field'=>"node.nid","value"=>$value1,"operator"=>">");
+		//$query->where[0]['conditions'][1] = array('field'=>$value3,"value"=>array(),"operator"=>"formula");
+		//$query->where[1]['conditions'][1] = array('field'=>'node.type',"value"=>$value4,"operator"=>"=");
+		$query->where[1]['conditions'][0] = array('field'=>"taxonomy_index.tid","value"=>$value2,"operator"=>"=");
+		//$query->where[1]['conditions'][1] = array('field'=>"node.status","value"=>"1","operator"=>"=");
+		// print_r($view->query);
+	}
+	if ($view->name == 'zn_mobile_hp_latest_news' && $view->current_display=='block_11'){
+	  //$query->where[1]['conditions'][1] = array();
+	 // $query->where[1]['conditions'][2] = array();
+		$value1 = $query->where[1]['conditions'][0]['value'];
+		$value2 = $query->where[0]['conditions'][0]['value'];
+		//$value3 = $query->where[1]['conditions'][1]['field'];
+		//$value4 = $query->where[0]['conditions'][1]['value'];
+	  
+		$query->where[0]['conditions'][0] = array('field'=>"node.nid","value"=>$value1,"operator"=>">");
+		//$query->where[0]['conditions'][1] = array('field'=>$value3,"value"=>array(),"operator"=>"formula");
+		//$query->where[1]['conditions'][1] = array('field'=>'node.type',"value"=>$value4,"operator"=>"=");
+		$query->where[1]['conditions'][0] = array('field'=>"taxonomy_index.tid","value"=>$value2,"operator"=>"=");
+		//$query->where[1]['conditions'][1] = array('field'=>"node.status","value"=>"1","operator"=>"=");
+		// print_r($view->query);
+	}
+	
+}
+
+*/
+
+?>

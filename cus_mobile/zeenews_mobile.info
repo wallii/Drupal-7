@@ -1,0 +1,11 @@
+name = ZeeNews Mobile
+description = Mobile Zee News module for various Hooks
+package = Zee News
+version = VERSION
+core = 7.x
+
+
+; Information added by  packaging script on 2013-11-20
+version = "7.24"
+project = "drupal"
+datestamp = "1384983240"
