@@ -1,0 +1,123 @@
+<?php
+
+/*
+* This will be a custom set of migration classes for a migration demo.
+*/
+
+/*
+* Implementation of hook_migrate_api.
+*/
+function zee_hindi_migrate_migrate_api() {
+  $api = array(
+    'api' => 2,
+    'migrations' => array(
+      //'ZeeNews' => array('class_name' => 'ZeeNewsMigration'),
+      //'DnaSlides' => array('class_name' => 'DnaSlideMigration'),
+    ),
+  );
+  return $api;
+}
+
+    Database::addConnectionInfo('for_migration', 'zeenews161', array(
+      'driver' => 'dblib',
+      'database' => 'ZeeNews',
+      'username' => 'sa',
+      'password' => 'P@ssw0rd',
+      //'host' => 'localhost',
+      'host' => '180.179.93.214',
+      'prefix' => '',
+    ));
+
+Database::addConnectionInfo('for_migration', 'zeenewsblog101', array(
+    'driver' => 'dblib',
+    'database' => 'ZeeNews_Blog',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.213',
+    'prefix' => '',
+));
+
+Database::addConnectionInfo('for_migration', 'zeenewsold101', array(
+    'driver' => 'dblib',
+    'database' => 'SQLSRV2004ZNews',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.213',
+    'prefix' => '',
+));
+
+Database::addConnectionInfo('for_migration', 'zeespice101', array(
+    'driver' => 'dblib',
+    'database' => 'ZeeSpice',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.213',
+    'prefix' => '',
+));
+
+Database::addConnectionInfo('for_migration', 'zeesports101', array(
+    'driver' => 'dblib',
+    'database' => 'ZeeSports',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.213',
+    'prefix' => '',
+));
+
+    Database::addConnectionInfo('for_migration', 'zeehindi161', array(
+      'driver' => 'dblib',
+      'database' => 'ZeeNews_Hindi',
+      'username' => 'sa',
+      'password' => 'P@ssw0rd',
+      //'host' => 'localhost',
+      'host' => '180.179.93.214',
+      'prefix' => '',
+    ));
+
+
+
+Database::addConnectionInfo('for_migration', 'zeehealth161', array(
+    'driver' => 'dblib',
+    'database' => 'ZeeHealth',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.214',
+    'prefix' => '',
+));
+
+
+Database::addConnectionInfo('for_migration', 'zeeayur161', array(
+    'driver' => 'dblib',
+    'database' => 'Zee_Ayurveda',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.214',
+    'prefix' => '',
+));
+
+
+Database::addConnectionInfo('for_migration', 'zeemarathi101', array(
+    'driver' => 'dblib',
+    'database' => 'ZeeNews_Marathi',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.213',
+    'prefix' => '',
+));
+
+Database::addConnectionInfo('for_migration', 'zeebengali161', array(
+    'driver' => 'dblib',
+    'database' => '24Ghanta',
+    'username' => 'sa',
+    'password' => 'P@ssw0rd',
+    //'host' => 'localhost',
+    'host' => '180.179.93.214',
+    'prefix' => '',
+));

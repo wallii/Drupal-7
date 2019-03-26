@@ -1,0 +1,12 @@
+name = Zee Hindi Migrate
+description = A custom set of migration scripts
+package = Zee News
+core = 7.x
+
+dependencies[] = migrate
+dependencies[] = migrate_extras
+dependencies[] = date
+
+files[] = zeenews.inc
+files[] = hindi.inc
+
