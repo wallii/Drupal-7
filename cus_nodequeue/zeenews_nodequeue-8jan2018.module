@@ -1,0 +1,1642 @@
+<?php
+
+/**
+ * Implements hook_perm().
+ */
+ 
+ /**
+ * Implements hook_perm().
+ */
+ 
+ 
+function zeenews_nodequeue_permission() {
+ return array(
+    
+    'access zeeent' => array(
+      'title' => t('Access Zee Entertainment menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeehealth' => array(
+      'title' => t('Access Zee Health menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeenews queue' => array(
+      'title' => t('Access Zee News Queue menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeesports' => array(
+      'title' => t('Access Zee Sports menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeeayurveda' => array(
+      'title' => t('Access Zee Ayurveda menu'),
+      'description' => t('Access menu Links.'),
+    ),
+  );
+}
+	
+	
+	
+
+/**
+ * Implements hook_menu().
+ */
+function zeenews_nodequeue_menu() {
+  $items = array();
+
+  /*$items['admin/set-home-page'] = array(
+    'title' => 'Set Home Page',
+    'page callback' => 'zee_ent_set_home_page',
+    'weight' => 10,
+     'access arguments' => array('access zeeent'),
+    'type' => MENU_NORMAL_ITEM,
+  );*/
+ /* $items['admin/set-home-page/zee-marathi'] = array(
+    'title' => 'Zee Marathi',
+    'page callback' => 'zee_marathi_set_home_page',
+    'weight' => 11,
+     'access arguments' => array('access zeemarathi'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/zee-bengali'] = array(
+    'title' => 'Zee Bengali',
+    'page callback' => 'zee_bengali_set_home_page',
+    'weight' => 12,
+     'access arguments' => array('access zeebengali'),
+    'type' => MENU_NORMAL_ITEM,
+  );*/
+  $items['admin/set-home-page/zee-ent'] = array(
+    'title' => 'Entertainment Home Page',
+    'page callback' => 'zee_ent_set_home_page',
+    'weight' => 11,
+     'access arguments' => array('access zeeent'),
+     //'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-health'] = array(
+    'title' => 'Health Home Page',
+    'page callback' => 'zee_health_set_home_page',
+    'weight' => 12,
+     'access arguments' => array('access zeehealth'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zeenews-queue'] = array(
+    'title' => 'Zee News Home Page',
+    'page callback' => 'zee_news_queue_set_home_page',
+    'weight' => 15,
+     'access arguments' => array('access zeenews queue'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-sports'] = array(
+    'title' => 'Sports Home Page',
+    'page callback' => 'zee_sports_set_home_page',
+    'weight' => 13,
+     'access arguments' => array('access zeesports'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-ayurveda'] = array(
+    'title' => 'Ayurveda Home Page',
+    'page callback' => 'zee_ayurveda_set_home_page',
+    'weight' => 14,
+     'access arguments' => array('access zeeayurveda'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['user/edit-my-profile'] = array(
+    'title'            => 'Edit Profile',
+     'page callback'    => 'user_edit_my_profile',
+     'weight' => 10,
+     'menu_name' => 'management',
+    //'access arguments' => array('access content'),
+     'access arguments' => array('View user profiles'), // permission
+    'type'             => MENU_NORMAL_ITEM,
+    );
+    
+      
+  
+ $items['tags'] = array(
+    'title' => 'SEO By Alphabet',
+    'page callback' => 'tags_main_page',
+    //'page arguments' => array(1),
+    'access arguments' => array('access content'),    
+    'type' => MENU_CALLBACK,
+  ); 
+   $items['tags/%'] = array(
+    'title' => 'SEO By Alphabet',
+    'page callback' => 'tags_page',
+    'access arguments' => array('access content'),    
+    'type' => MENU_CALLBACK,
+  ); 
+  $items['get/ajax/%'] = array(
+    'page callback' => 'myModule_ajax_get_ajax', // Render HTML
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'delivery callback' => 'myModule_ajax_callback',  // Magic goes here
+  );
+  return $items;
+}
+
+function user_edit_my_profile() {
+  global $user;
+  drupal_goto('user/'.$user->uid.'/edit');
+}
+
+function myModule_ajax_get_ajax($nid) {
+ 
+ if(is_numeric($nid)){
+print views_embed_view('live_block_data_management','block_1',$nid);
+}
+  
+}
+
+function myModule_ajax_callback($page_callback_result) {
+  // Only render content
+  $content = drupal_render($page_callback_result);
+
+  // Add CSS ans JS files, add some markup
+  $html = '<html><head><title></title>' . drupal_get_css() . drupal_get_js() . '</head><body class="jquery-ajax-load">' . $content . '</body></html>';
+  print $html;
+
+  // Perform end-of-request tasks.
+  drupal_page_footer();
+}
+
+/**
+ * Implements Entertainment editor nodequeue list zee_ent_set_home_page().
+ */
+ 
+function zee_ent_set_home_page(){
+	    $output = '';
+			
+	$rid='5';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Health editor nodequeue list zee_health_set_home_page().
+ */
+ 
+function zee_health_set_home_page(){
+	    $output = '';
+			
+	$rid='6';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements News Queue editor nodequeue list zee_news_queue_set_home_page().
+ */
+ 
+function zee_news_queue_set_home_page(){
+	    $output = '';
+			
+	$rid='7';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Sports editor nodequeue list zee_sports_set_home_page().
+ */
+ 
+function zee_sports_set_home_page(){
+	    $output = '';
+			
+	$rid='8';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Ayurveda editor nodequeue list zee_ayurveda_set_home_page().
+ */
+ 
+function zee_ayurveda_set_home_page(){
+	    $output = '';
+			
+	$rid='9';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+function zeenews_nodequeue_form_alter(&$form, &$form_state, $form_id){
+		if((arg(0)=='admin') && (arg(1)=='structure') && (arg(2)=='nodequeue')){
+		
+			if($form_id=='nodequeue_arrange_subqueue_form_'.arg(3)){
+				unset($form['actions']['clear']);
+				unset($form['actions']['reverse']);
+				unset($form['actions']['shuffle']);
+			}
+		
+	    }
+	    /***
+     *  Astro Form  alter
+     **/
+    if($form_id=='webform_client_form_1427159'){
+        $form['submitted']['astro_monthly']['#process'][] = 'monthly_process_date';
+    } 
+    if($form_id=='webform_client_form_1427338'){
+		$form['submitted']['tarot_fromdate']['#title_display'] = 'none';
+       $form['submitted']['tarot_fromdate']['#type']='hidden';
+       $form['submitted']['tarot_todate']['#title_display'] = 'none';
+       $form['submitted']['tarot_todate']['#type']='hidden';
+       $form['#validate'][]='mymodule_form_validate';
+        return $form;
+    }
+    /***
+     *  Post Question  form alter
+     **/
+		if($form_id=='webform_client_form_1456887'){
+			 
+			global $user;
+
+			 $form['actions']['submit']['#attributes']['class'][] = 'pollbtn-blu col-xs-offset-0';
+			//
+			$action_perform= explode('submission',$form['#action']);
+			$action_perform=explode('/',$action_perform['1']);
+			
+			if(($action_perform['2']=='edit?destination=node')||($action_perform['2']=='edit')){
+				//$form['submitted']['education_given_answer']['#value'] = '10';
+                //$form['submitted']['education_given_answer']['#title_display'] = 'none';
+                $form['submitted']['education_given_answer']['#required'] ='1';
+				$form['submitted']['education_answer_here']['#required'] ='1';
+				$form['submitted']['education_answer_here']['#type']='textarea';
+               
+			}
+			else{
+				$form['submitted']['education_given_answer']['#type']='hidden';
+				$form['submitted']['education_answer_here']['#type']='hidden';
+					$form['submitted']['education_given_answer']['#value'] = '11';
+					 $form['submitted']['education_enter_your_name']['#title_display']='none';
+                $form['submitted']['education_email']['#title_display']='none';
+                $form['submitted']['education_category']['#title_display']='none';
+                $form['submitted']['eduction_question_here']['#title_display']='none';
+                $form['submitted']['education_answer_here']['#title_display']='none';
+                $form['submitted']['education_given_answer']['#title_display'] = 'none';
+
+			}
+			
+			
+			if($user->uid=='0'){
+				$form['submitted']['education_answer_here']['#type']='hidden';
+			}
+			
+			
+
+			
+		}
+    
+   
+}
+
+function mymodule_form_validate($form,&$form_state)
+{
+	$from_date = mktime("00", "00", "00", 
+$form_state['values']['submitted']['tarot_from_date']['month'], 
+$form_state['values']['submitted']['tarot_from_date']['day'], 
+$form_state['values']['submitted']['tarot_from_date']['year']);
+$to_date = mktime("00", "00", "00", 
+$form_state['values']['submitted']['tarot_to_date']['month'], 
+$form_state['values']['submitted']['tarot_to_date']['day'], 
+$form_state['values']['submitted']['tarot_to_date']['year']);
+$to_date1 = strtotime("+6 day", $from_date);
+	
+		if ($to_date < $to_date1)
+		{
+		  form_set_error('submitted][tarot_to_date', t('Please check your dates'));
+		}
+    
+}
+
+/**
+ * Implements monthly_process_date().
+ */
+function monthly_process_date(&$element){
+    $element['day']['#type'] = 'hidden';
+    $date=date('d',time());
+    $element['day']['#value'] = $date;
+
+    return $element;
+}
+
+/**
+ * Implements zeenews_nodequeue_webform_submission_presave().
+ */
+function zeenews_nodequeue_webform_submission_presave($node, &$submission) {
+   
+    if($node->webform['nid']=='1427159'){
+        if($submission->data['1'][0] =='1'){
+            $timestamp = strtotime($submission->data[2][0]);
+            $submission->submitted = $timestamp;
+
+        }else{
+            $timestamp = strtotime($submission->data[3][0]);
+            $submission->submitted = $timestamp;
+
+        }
+
+    }
+    
+      if($node->webform['nid']=='1427338'){
+        
+         $from_date =strtotime($submission->data[1][0]) ;
+        $to_date =strtotime($submission->data[2][0]) ;
+        
+			 $submission->data[16][0]= $from_date;
+			  $submission->data[17][0]= $to_date;
+		
+
+
+    }
+
+}
+
+
+function zeenews_nodequeue_views_pre_view(&$view, &$display_id, &$args) {
+	
+	
+  if ($view->name == 'ze_sp_astro_page') {
+	 
+	  if($view->current_display=='block_1'){
+		  $date=date('Y-m-d',time());
+		
+		$view->display_handler->options['filters']['submitted']['value']['value']= $date;
+	 }
+    if($view->current_display=='block_2'){
+		$date=date('Y-m-01',time());
+		
+		$view->display_handler->options['filters']['submitted']['value']['value']= $date;
+	}
+	
+  }
+   if ($view->name == 'zn_appapi_xml') {
+	  
+		$view->display_handler->options['fields']['path']['alter']['text'] = 'http://'.$_SERVER['HTTP_HOST'].base_path().$view->display_handler->options['fields']['path']['alter']['text'];
+
+   }
+   if ($view->name == 'zn_appapi_xml') {
+	  
+		$view->display_handler->options['fields']['path']['alter']['text'] = 'http://'.$_SERVER['HTTP_HOST'].base_path().$view->display_handler->options['fields']['path']['alter']['text'];
+
+   }
+   if ($view->name == 'zn_all_tags') {
+	   
+	   if($view->current_display=='block_1'){
+			$arrurl = array('tags/title-a.html','tags/title-b.html','tags/title-c.html','tags/title-d.html','tags/title-e.html','tags/title-f.html',
+								'tags/title-g.html','tags/title-h.html','tags/title-i.html','tags/title-j.html','tags/title-k.html','tags/title-l.html',
+								'tags/title-m.html','tags/title-n.html','tags/title-o.html','tags/title-p.html','tags/title-q.html','tags/title-r.html',
+								'tags/title-s.html','tags/title-t.html','tags/title-u.html','tags/title-v.html','tags/title-w.html','tags/title-x.html',
+								'tags/title-y.html','tags/title-z.html');
+			//$arrurl = array('tags/title-a.html');
+			$arrname=drupal_get_path_alias();
+			if (in_array($arrname, $arrurl)) {
+				 $arrfilter = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
+				 //$arrfilter = array('a');
+				 $arrname1= str_replace($arrurl,$arrfilter,$arrname);
+			}  					
+	 
+			$view->display_handler->options['filters']['name']['value']= $arrname1;
+		//$view->display_handler->options['fields']['path']['alter']['text'] = 'http://'.$_SERVER['HTTP_HOST'].base_path().$view->display_handler->options['fields']['path']['alter']['text'];
+	   }
+   }
+  
+}
+
+
+
+
+/**
+ * Implements hook_block_info().
+ */
+function zeenews_nodequeue_block_info() {
+  $blocks = array();
+
+  $blocks['hindi_mainlead_front'] = array(
+    'info' => t('Hindi Mainlead Front'),
+  );
+  $blocks['marathi_mainlead_front'] = array(
+    'info' => t('Marathi Mainlead Front'),
+  );
+  $blocks['marathi_minilead_front'] = array(
+    'info' => t('Marathi Minilead Front'),
+  );
+  $blocks['biz_wire_xml'] = array(
+    'info' => t('Biz Wire XML'),
+  );
+	 $blocks['biz_video_xml'] = array(
+    'info' => t('Biz Video XML'),
+  );
+  $blocks['sangam_mainlead_front'] = array(
+    'info' => t('Sangam Mainlead Front'),
+  );
+  $blocks['sangam_minilead_front'] = array(
+    'info' => t('Sangam Minilead Front'),
+  );
+    $blocks['malayalam_mainlead_front'] = array(
+    'info' => t('Malayalam Mainlead Front'),
+  );
+  $blocks['malayalam_minilead_front'] = array(
+    'info' => t('Malayalam Minilead Front'),
+  );
+  
+  $blocks['tamil_mainlead_front'] = array(
+    'info' => t('Tamil Mainlead Front'),
+  );
+
+   $blocks['dna_originals_front'] = array(
+    'info' => t('Tamil Mainlead Front'),
+  );
+  return $blocks;
+
+}
+
+/**
+* Implements hook_block_view().
+*/
+function zeenews_nodequeue_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+   
+    case 'dna_originals_front':
+		
+	  $url = 'http://www.dnaindia.com/feeds/opinion-widget.xml';
+      $block['subject'] = 'DNA Originals Front';
+      $block['content'] = dna_originals_result($url);
+      break;
+	  
+     case 'hindi_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/mainlead.xml';
+      $block['subject'] = 'Hindi Mainlead Front';
+      $block['content'] = hindi_mainlead_result($url);
+      break;
+      case 'marathi_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/marathi/mainlead.xml';
+      $block['subject'] = 'Marathi Mainlead Front';
+      $block['content'] = marathi_mainlead_result($url);
+      break;
+      case 'marathi_minilead_front':
+		
+		$url = 'http://zeenews.india.com/marathi/minilead.xml';
+      $block['subject'] = 'Marathi Minilead Front';
+      $block['content'] = marathi_minilead_result($url);
+      break;
+      case 'bengali_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/bengali/mainlead.xml';
+      $block['subject'] = 'Bengali Mainlead Front';
+      $block['content'] = bengali_mainlead_result($url);
+      break;
+      case 'bengali_minilead_front':
+		
+		$url = 'http://zeenews.india.com/bengali/minilead.xml';
+      $block['subject'] = 'Bengali Minilead Front';
+      $block['content'] = bengali_minilead_result($url);
+      break;
+      
+      case 'malayalam_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/malayalam/mainlead';
+      $block['subject'] = 'Malayalam Mainlead Front';
+      $block['content'] = malayalam_mainlead_result($url);
+      break;
+      case 'malayalam_minilead_front':
+		
+		$url = 'http://zeenews.india.com/malayalam/minilead';
+      $block['subject'] = 'Malayalam Minilead Front';
+      $block['content'] = malayalam_minilead_result($url);
+      break;
+	  
+	   case 'tamil_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/tamil/mainlead';
+      $block['subject'] = 'Tamil Mainlead Front';
+      $block['content'] = tamil_mainlead_result($url);
+      break;
+     
+      
+      case 'biz_wire_xml':
+		
+		$url = 'http://cms.businesswireindia.com/feeds/zee/feeds.xml';
+      $block['subject'] = 'Biz Wire XML';
+      $block['content'] = biz_wire_result($url);
+      break;
+       case 'biz_video_xml':
+		
+		$url = 'http://zeenews.india.com/business/business_video.aspx';
+      $block['subject'] = 'Biz Video XML';
+      $block['content'] = biz_video_result($url);
+      break;
+      
+       case 'sangam_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/sangam/mainlead.xml';
+      $block['subject'] = 'Sangam Mainlead Front';
+      $block['content'] = sangam_mainlead_result($url);
+      break;
+      case 'sangam_minilead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/sangam/minilead.xml';
+      $block['subject'] = 'Sangam Minilead Front';
+      $block['content'] = sangam_minilead_result($url);
+      break;
+  }
+
+  return $block;
+}
+/* DNA */
+
+
+function dna_originals_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _dna_originals_block_content($doc);
+	       
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+function _dna_originals_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+		/*
+		<div class="list-story clearfix __web-inspector-hide-shortcut__">
+<h5 class="head-5"><a href="/karnataka">Karnataka</a></h5>
+<h4><a href="/karnataka/bjp-leader-bandi-ramesh-hacked-to-death-in-karnatakas-ballari-2017726.html?pfrom=article-rhs-trending" class="text" title="BJP leader Bandi Ramesh hacked to death in Karnataka's Ballari">BJP leader Bandi Ramesh hacked to death in Karnataka's Ballari</a></h4>
+</div>
+*/
+	    $out .='<div class="list-story clearfix __web-inspector-hide-shortcut__">';
+	    foreach ($items as $item) {
+				//$out .= '<h5 class="head-5">'.l(htmlspecialchars_decode($item->category,ENT_QUOTES),$item->link,array('attributes' => array('target'=>'_blank'))).'</h5>';
+		       $out .='<li>kk</li>';
+			   $j++;
+        }
+	     $out .='</div>';
+    return $out;
+}
+
+/* Hindi */
+
+function hindi_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _hindi_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _hindi_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	  
+	    $out = '';
+	    $i = 0;
+	    $out .= '<div class="row hnd-bx">';
+	    foreach ($items as $item) {
+			if($i=='0'){
+				
+			 $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->Image.'" class="img-responsive"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+				
+			}
+			$i++;
+      
+	    }
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+			if($j >'0'){
+	
+				$out .= '<li>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</li>';
+			}
+	      
+	            $j++;
+      
+	    }
+	     $out .='</div>
+				</ul>';
+	    $out .= '</div>';
+	   
+	    return $out;
+	}
+	
+	/*tamil block*/
+	
+	function tamil_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _tamil_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _tamil_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	  
+	    $out = '';
+	    $i = 0;
+	    $out .= '<div class="row hnd-bx">';
+	    foreach ($items as $item) {
+			if($i=='0'){
+				
+			 $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->Image.'" class="img-responsive"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+				
+			}
+			$i++;
+      
+	    }
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+			if($j >'0'){
+	
+				$out .= '<li>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</li>';
+			}
+	      
+	            $j++;
+      
+	    }
+	     $out .='</div>
+				</ul>';
+	    $out .= '</div>';
+	   
+	    return $out;
+	}
+	
+	/*tamil end */
+	
+function marathi_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	        
+	            return t("");
+	        }
+	        return _marathi_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _marathi_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+		  $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->Image.'" class="img-responsive"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function marathi_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	           
+	            return t("");
+	        }
+	        return _marathi_minilead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+function _marathi_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+	
+/*  Bengali lead xml Block 
+ * 
+ **/	
+ function bengali_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	           
+	            return t("");
+	        }
+	        return _bengali_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _bengali_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+			$out .= '<div class="col-md-6">
+					 <a href="'.$item->path.'"> <img title="'.$item->title.'" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive"></a>
+					<h2>'.l($item->title,$item->path,array('attributes' => array('class'=>'bengali-lead','target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function bengali_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	           
+	            return t("");
+	        }
+	        return _bengali_minilead_block_content($doc);
+	    }
+	    else {
+	        
+	       return t("");
+		}
+}
+function _bengali_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li class="bengali">'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+		//$block = module_invoke('zeenews_nodequeue', 'block_view', 'biz_wire_xml');
+		//$out .= $block['content'];
+    return $out;
+}
+/*  malayalam lead xml Block 
+ * 
+ **/	
+ function malayalam_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _malayalam_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _malayalam_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+			$out .= '<div class="col-md-6">
+					 <a href="'.$item->path.'"> <img title="'.$item->title.'" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l($item->title,$item->path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function malayalam_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _malayalam_minilead_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _malayalam_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+
+    return $out;
+}
+
+/* Biz wire xml */
+
+function biz_wire_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _biz_wire_block_content($doc);
+	    }
+	    else {
+	      
+	       return t("");
+		}
+}
+function _biz_wire_block_content($doc) {
+	//print_r($doc);
+	    $items = $doc->news;
+	    $out = '';
+	    $j ='0';
+	     $k ='0';
+	    
+$out .='<style type="text/css">
+div.xn-content p
+{
+margin: 5px;
+padding: 5px;
+}
+</style>
+<script type="text/javascript" src="http://widget.prnewswire.com/widget/widget.js?preset=2&rude=1&l=en&social=1&back=1&prnlogo=1&incldate=0&inclcity=0&showRelease=1&expandheight=1&showlogos=1&passDir=1,5,2,15,17,25&widgettitle=&numresults=9&numvideos=2&hlineorbrief=hline&bold=1&bkgcolor=FFFFFF&rowcolor1=FFFFFF&rowcolor2=FFFFFF&bordercolor=666666&link=5272ad&visitedcolor=FFFFFF&textcolor=000000&datecolor=888888&fontface=Verdana&fontsize=8&bordersize=0&morelinkstyle=color%3A%20%235272ad;font-family:Verdana;font-size:11px;font-weight:bold;&releasetitlestyle=color%3A%235272ad;font-family:Verdana;font-size:14px;font-weight:bold;&"></script>
+';
+	    $out .='<div class="">
+	    <strong>INDIAN RELEASES </strong>
+				<ul>';
+	    foreach ($items as $item) {
+			if(($item->subcats=='pressreleaseIND') || ($item->subcats=='pressreleaseIndia')){
+				$out .= '<li>'.$item->headline.'</li>';
+			}
+			
+				
+		       $j++;
+        }
+	     $out .='
+				</ul></div>';
+		$out .='<div class="">
+	    <strong>INTERNATIONAL RELEASES  </strong>
+				<ul>';
+	    foreach ($items as $item) {
+			if(($item->subcats=='pressreleaseINT') ){
+				$out .= '<li><a href="/businesswire/40278news.html">'.$item->headline.'</a></li>';
+			}
+				
+		       $k++;
+        }
+	     $out .='</ul></div>';
+    return $out;
+}
+
+/* Biz Video xml */
+
+function biz_video_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	           
+	            return t("");
+	        }
+	        return _biz_video_block_content($doc);
+	    }
+	    else {
+	       
+	       return t("");
+		}
+}
+function _biz_video_block_content($doc) {
+	
+	    $items = $doc->channel->item;
+	    $out = '';
+	    foreach ($items as $item) {
+			
+			$out .=' <div class="col-sm-6 col-md-3"><div class="video-div">
+		 <a target="_blank" href="'.$item->link.'"><img  title="" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive" data-qazy="false"></a>	
+	  		  	';
+			$out .='</div>
+			<a target="_blank" href="'.$item->link.'">'.$item->title.'</a>
+				 	</div>';
+	   }
+   return $out;
+}
+
+/**  sangam main lead */
+function sangam_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _sangam_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _sangam_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+		  $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->image.'" class="img-responsive" ></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function sangam_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _sangam_minilead_block_content($doc);
+	       
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+function _sangam_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+	
+
+
+/*********** tage page ******************/
+
+function tags_main_page(){
+    $output = '';
+    
+    $output .= '<div class="full-story-head">
+				  <h1 class="seo-heading-gh"><a href="/tags">BROWSE NEWS</a> BY EVENTS, PEOPLE, PLACES AND SUBJECTS</h1></div>
+				<div class="alphabet">
+					<ul class="alpha-list">
+						<li><a href="'.$base_url.'/tags/title-a.html">A</a></li>
+						<li><a href="'.$base_url.'/tags/title-b.html">B</a></li>
+						<li><a href="'.$base_url.'/tags/title-c.html">C</a></li>
+						<li><a href="'.$base_url.'/tags/title-d.html">D</a></li>
+						<li><a href="'.$base_url.'/tags/title-e.html">E</a></li>
+						<li><a href="'.$base_url.'/tags/title-f.html">F</a></li>
+						<li><a href="'.$base_url.'/tags/title-g.html">G</a></li>
+						<li><a href="'.$base_url.'/tags/title-h.html">H</a></li>
+						<li><a href="'.$base_url.'/tags/title-i.html">I</a></li>
+						<li><a href="'.$base_url.'/tags/title-j.html">J</a></li>
+						<li><a href="'.$base_url.'/tags/title-k.html">K</a></li>
+						<li><a href="'.$base_url.'/tags/title-l.html">L</a></li>
+						<li><a href="'.$base_url.'/tags/title-m.html">M</a></li>
+						<li><a href="'.$base_url.'/tags/title-n.html">N</a></li>
+						<li><a href="'.$base_url.'/tags/title-o.html">O</a></li>
+						<li><a href="'.$base_url.'/tags/title-p.html">P</a></li>
+						<li><a href="'.$base_url.'/tags/title-q.html">Q</a></li>
+						<li><a href="'.$base_url.'/tags/title-r.html">R</a></li>
+						<li><a href="'.$base_url.'/tags/title-s.html">S</a></li>
+						<li><a href="'.$base_url.'/tags/title-t.html">T</a></li>
+						<li><a href="'.$base_url.'/tags/title-u.html">U</a></li>
+						<li><a href="'.$base_url.'/tags/title-v.html">V</a></li>
+						<li><a href="'.$base_url.'/tags/title-w.html">W</a></li>
+						<li><a href="'.$base_url.'/tags/title-x.html">X</a></li>
+						<li><a href="'.$base_url.'/tags/title-y.html">Y</a></li>
+						<li><a href="'.$base_url.'/tags/title-z.html">Z</a></li>						
+					</ul>
+				</div>
+
+				<div class="seo-news">
+				<div class="news-city">
+				<div class="heading-border">
+				<h2 class="seo-news-heading">NEWS BY CITIES</h2>
+				<span>
+				 <a style="cursor:pointer;" onclick="javascript: slidercities.goToPrevSlide();">
+				<img src="http://ste.india.com/images/left-ar.jpg" alt=""></a>&nbsp;
+				<a  style="cursor:pointer;" onclick="javascript: slidercities.goToNextSlide();">
+				<img src="http://ste.india.com/images/right-ar.jpg" alt=""></a>
+			
+				</span>
+				<div class="clearfix"></div>
+				</div>
+				<div class="slidercities">
+				<div class="city-con">
+				<ul class="">
+					<li><a href="/tags/visakhapatnam.html">Visakhapatnam</a></li>
+					<li><a href="/tags/vijayawada.html">Vijayawada</a></li>
+					<li><a href="/tags/guntur.html">Guntur</a></li>
+					<li><a href="/tags/nellore.html">Nellore</a></li>
+					<li><a href="/tags/kurnool.html">Kurnool</a></li>
+					<li><a href="/tags/rajahmundry.html">Rajahmundry</a></li>
+					<li><a href="/tags/kadapa.html">Kadapa</a></li>
+					<li><a href="/tags/kakinada.html">Kakinada</a></li>
+					<li><a href="/tags/tirupati.html">Tirupati</a></li>
+					<li><a href="/tags/anantapur.html">Anantapur</a></li>
+					<li class="0 first"><a href="/tags/guwahati.html">Guwahati</a></li>
+					<li class="1"><a href="/tags/agartala.html">Agartala</a></li>
+					<li class="2"><a href="/tags/dimapur.html">Dimapur</a></li>
+					<li class="3"><a href="/tags/shillong.html">Shillong</a></li>
+					<li class="4"><a href="/tags/aizawl.html">Aizawl</a></li>
+					<li class="5"><a href="/tags/imphal.html">Imphal</a></li>
+					<li class="6"><a href="/tags/silchar.html">Silchar</a></li>
+					<li class="7"><a href="/tags/bongaigaon.html">Bongaigaon</a></li>
+					<li class="8"><a href="/tags/dibrugarh.html">Dibrugarh</a></li>
+					<li class="9 last"><a href="/tags/jorhat.html">Jorhat</a></li>
+					<li class="0 first"><a href="/tags/panaji.html">Panaji</a></li>
+					<li class="1"><a href="/tags/calangute.html">Calangute</a></li>
+					<li class="2"><a href="/tags/vasco-da-gama.html">Vasco Da Gama</a></li>
+					<li class="3"><a href="/tags/margao.html">Margao</a></li>
+					<li class="4 last"><a href="/tags/mapusa.html">Mapusa</a> </li>	
+					<li class="0 first"><a href="/tags/patna.html">Patna</a></li>
+					<li class="1"> <a href="/tags/gaya.html">Gaya </a></li>
+					<li class="2"><a href="/tags/bhagalpur.html">Bhagalpur</a></li>
+				</ul>
+				</div>
+				<div class="city-con">
+				<ul class="">
+					<li class="3"><a href="/tags/muzaffarpur.html">Muzaffarpur</a></li>
+					<li class="4"><a href="/tags/purnia.html">Purnia</a></li>
+					<li class="5"><a href="/tags/darbhanga.html">Darbhanga</a></li>
+					<li class="6"><a href="/tags/bihar-sharif.html">Bihar Sharif</a></li>
+					<li class="7"><a href="/tags/danapur.html">Danapur</a></li>
+					<li class="8"><a href="/tags/begusarai.html">Begusarai</a></li>
+					<li class="9 last"><a href="/tags/katihar.html">Katihar</a></li>
+					<li class="0 first"><a href="/tags/raipur.html">Raipur</a></li>
+					<li class="1"> <a href="/tags/durg-bhilai.html">Durg-Bhilainagar </a></li>
+					<li class="2"><a href="/tags/bilaspur.html">Bilaspur</a></li>
+					<li class="3"><a href="/tags/korba.html">Korba</a></li>
+					<li class="4"><a href="/tags/rajnandgaon.html">Rajnandgaon</a></li>
+					<li class="5"><a href="/tags/raigarh.html">Raigarh</a></li>
+					<li class="6"><a href="/tags/jagdalpur.html">Jagdalpur</a></li>
+					<li class="7"><a href="/tags/ambikapur.html">Ambikapur</a></li>
+					<li class="8"><a href="/tags/dhamtari.html">Dhamtari</a></li>
+					<li class="9 last"><a href="/tags/mahasamund.html">Mahasamund</a></li>
+					<li class="0 first"><a href="/tags/ahmedabad.html">Ahmedabad</a></li>
+					<li class="1"> <a href="/tags/surat.html">Surat</a></li>
+					<li class="2"> <a href="/tags/vadodara.html">Vadodara</a></li>
+					<li class="3"><a href="/tags/rajkot.html">Rajkot</a></li>
+					<li class="4"><a href="/tags/jamnagar.html">Jamnagar</a></li>
+					<li class="5"><a href="/tags/bhavnagar.html">Bhavnagar</a></li>
+					<li class="6"><a href="/tags/junagadh.html">Junagadh</a></li>
+					<li class="7"><a href="/tags/gandhinagar.html">Gandhinagar</a></li>
+					<li class="8"><a href="/tags/nadiad.html">Nadiad</a></li>
+					<li class="9 last"><a href="/tags/morbi.html">Morbi</a></li>
+					<li class="0 first"><a href="/tags/srinagar.html">Srinagar</a></li>
+				</ul>
+				</div>
+				<div class="city-con">
+				<ul>
+					<li class="1"><a href="/tags/jammu.html">Jammu</a></li>
+					<li class="2"><a href="/tags/anantnag.html">Anantnag</a></li>
+					<li class="3"><a href="/tags/udhampur.html">Udhampur</a></li>
+					<li class="4"><a href="/tags/baramula.html">Baramula</a></li>
+					<li class="5"><a href="/tags/sopore.html">Sopore</a></li>
+					<li class="6"><a href="/tags/kathua.html">Kathua</a></li>
+					<li class="7"><a href="/tags/gulmarg.html">Gulmarg</a></li>
+					<li class="8"><a href="/tags/leh.html">Leh</a></li>
+					<li class="9 last"><a href="/tags/akhnoor.html">Akhnoor</a></li>
+					<li class="0 first"><a href="/tags/chamba.html">Baddi</a></li>
+					<li class="1"><a href="/tags/kasauli.html">Kasauli</a></li>
+					<li class="2"><a href="/tags/dharamsala.html">Dharmsāla (Dharamsala)</a></li>
+					<li class="3"><a href="/tags/kullu.html">Kullu</a></li>
+					<li class="4"><a href="/tags/mandi.html">Mandi</a></li>
+					<li class="5"><a href="/tags/nahan.html">Nahan</a></li>
+					<li class="6"> <a href="/tags/paonta-sahib.html">Paonta Sahib</a></li>
+					<li class="7"><a href="/tags/shimla.html">Shimla (Simla)</a></li>
+					<li class="8 last"> <a href="/tags/solan.html">Solan</a> </li>		
+					<li class="0 first"><a href="/tags/faridabad.html">Faridabad</a> </li>
+					<li class="1"> <a href="/tags/gurgaon.html">Gurgaon</a></li>
+					<li class="2"><a href="/tags/panipat.html">Panipat</a></li>
+					<li class="3"><a href="/tags/ambala.html">Ambala</a></li>
+					<li class="4"><a href="/tags/yamunanagar.html">Yamunanagar</a></li>
+					<li class="5"><a href="/tags/rohtak.html">Rohtak</a></li>
+					<li class="6"><a href="/tags/hisar.html">Hisar</a></li>
+					<li class="7"><a href="/tags/karnal.html">Karnal</a></li>
+					<li class="8"><a href="/tags/sonipat.html">Sonipat</a> </li>
+					<li class="9 last"> <a href="/tags/panchkula.html">Panchkula</a></li>
+				</ul>
+				</div>
+				<div class="city-con">
+				<ul>
+					<li><a href="/tags/jamshedpur.html">Jamshedpur</a></li>
+					<li><a href="/tags/dhanbad.html">Dhanbad</a></li>
+					<li><a href="/tags/ranchi.html">Ranchi</a></li>
+					<li><a href="/tags/bokaro.html">Bokaro Steel City</a></li>
+					<li><a href="/tags/deoghar.html">Deoghar</a></li>
+					<li><a href="/tags/chatra.html">Chatra</a></li>
+					<li><a href="/tags/hazaribagh.html">Hazaribagh</a></li>
+					<li><a href="/tags/giridih.html">Giridih</a></li>
+					<li><a href="/tags/ramgarh.html">Ramgarh</a></li>
+					<li><a href="/tags/medininagar.html">Medininagar</a></li>
+					<li><a href="/tags/bengaluru.html">Bengaluru</a> </li>
+					<li><a href="/tags/mysore.html">Mysore</a></li>
+					<li><a href="/tags/hubli.html">Hubli-Dharwar</a>   </li>
+					<li><a href="/tags/mangalore.html">Mangalore</a> </li>
+					<li><a href="/tags/belgaum.html">Belgaum</a>  </li>
+					<li><a href="/tags/gulbarga.html">Gulbarga</a> </li>
+					<li> <a href="/tags/davanagere-karnataka.html">Davanagere</a></li>
+					<li><a href="/tags/bellary.html">Bellary</a></li>
+					<li><a href="/tags/bijapur.html">Bijapur</a></li>
+					<li><a href="/tags/shimoga.html">Shimoga</a></li>
+					<li><a href="/tags/indore.html">Indore</a></li>
+					<li><a href="/tags/bhopal.html">Bhopal</a></li>
+					<li><a href="/tags/jabalpur.html">Jabalpur</a></li>
+					<li><a href="/tags/gwalior.html">Gwalior</a> </li>
+					<li><a href="/tags/ujjain.html">Ujjain</a></li>
+					<li><a href="/tags/sagar.html">Sagar</a> </li>
+					<li><a href="/tags/dewas.html">Dewas</a></li>
+					<li><a href="/tags/satna.html">Satna</a></li>
+				</ul>
+				</div>
+			
+				
+				
+				<div class="city-con">
+					<ul>
+						<li><a href="/tags/ratlam.html">Ratlam</a></li>
+						<li><a href="/tags/rewa.html">Rewa</a></li>
+						<li><a href="/tags/bombay.html">Mumbai (Bombay)</a></li>
+						<li><a href="/tags/pune.html">Pune</a></li>
+						<li><a href="/tags/nagpur.html">Nagpur</a></li>
+						<li> <a href="/tags/thane.html">Thane</a></li>
+						<li><a href="/tags/pimpri-chinchwad.html">Pimpri-Chinchwad</a></li>
+						<li> <a href="/tags/nashik.html">Nashik</a></li>
+						<li><a href="/tags/kalyan-dombivali.html">Kalyan-Dombivali</a></li>
+						<li><a href="/tags/vasai-virar.html">Vasai-Virar</a></li>
+						<li><a href="/tags/aurangabad.html">Aurangabad</a></li>
+						<li> <a href="/tags/navi-mumbai.html">Navi Mumbai</a></li>
+						<li><a href="/tags/thiruvananthapuram.html">Thiruvananthapuram</a></li>
+						<li><a href="/tags/kochi.html">Kochi</a></li>
+						<li><a href="/tags/kozhikode.html">Kozhikode</a></li>
+						<li><a href="/tags/kollam.html">Kollam</a></li>
+						<li><a href="/tags/ernakulam.html">Ernakulam</a></li>
+						<li><a href="/tags/kannur.html">Kannur</a></li>
+						<li><a href="/tags/palakkad.html">Palakkad</a></li>
+						<li><a href="/tags/thrissur.html">Thrissur</a></li>
+						<li><a href="/tags/kottayam.html">Kottayam</a></li>
+						<li><a href="/tags/malappuram.html">Malappuram</a> </li>
+						<li><a href="/tags/jaipur.html">Jaipur</a></li>
+						<li><a href="/tags/jodhpur.html">Jodhpur</a></li>
+						<li><a href="/tags/kota.html">Kota</a></li>
+						<li><a href="/tags/bikaner.html">Bikaner</a></li>
+						<li><a href="/tags/ajmer.html">Ajmer</a></li>
+						<li> <a href="/tags/udaipur.html">Udaipur</a></li>
+					</ul>
+				</div>
+				
+				
+				
+				<div class="city-con">
+				<ul>
+					 
+         <li> <a href="/tags/bhilwara.html">Bhilwara</a>  </li>
+         <li> <a href="/tags/alwar.html">Alwar</a></li>
+         <li><a href="/tags/bharatpur.html">Bharatpur</a></li>
+         <li><a href="/tags/jaisalmer.html">Jaisalmer</a></li>
+         <li><a href="/tags/ludhiana.html">Ludhiana</a> </li>
+          <li><a href="/tags/amritsar.html">Amritsar</a></li>
+		  <li><a href="/tags/jalandhar.html">Jalandhar</a></li>
+          <li><a href="/tags/patiala.html">Patiala</a></li>
+          <li><a href="/tags/bathinda.html">Bathinda</a></li>
+          <li><a href="/tags/kapurthala.html">Kapurthala</a></li>
+          <li><a href="/tags/hoshiarpur.html">Hoshiarpur</a></li>
+          <li><a href="/tags/batala.html">Batala</a></li>
+          <li><a href="/tags/pathankot.html">Pathankot</a></li>
+          <li><a href="/tags/moga.html">Moga</a></li>
+           <li><a href="/tags/rourkela.html">Rourkela</a></li>
+            <li><a href="/tags/brahmapur.html">Brahmapur</a></li>
+			<li><a href="/tags/sambalpur.html">Sambalpur</a></li>
+            <li><a href="/tags/cuttack.html">Cuttack</a></li>
+            <li><a href="/tags/balasore.html">Balasore</a> </li>
+            <li><a href="/tags/bhadrak.html">Bhadrak</a></li>
+            <li><a href="/tags/baripada.html">Baripada</a></li>
+            <li><a href="/tags/jharsuguda.html">Jharsuguda</a></li>
+            <li> <a href="/tags/bhawanipatna.html">Bhawanipatna</a></li>          
+             <li> <a href="/tags/dhenkanal.html">Dhenkanal</a>  </li>
+            <li>        <a href="/tags/barbil.html">Barbil</a>      </li>
+             <li>       <a href="/tags/chennai.html">Chennai</a>    </li>
+            <li>    <a href="/tags/coimbatore.html">Coimbatore</a>     </li>
+            <li> <a href="/tags/madurai.html">Madurai</a></li>
+				</ul>
+				</div>
+				
+				
+					<div class="city-con">
+					<ul>
+						<li><a href="/tags/tiruchirappalli.html">Tiruchirappalli</a></li>
+						<li><a href="/tags/salem.html">Salem</a></li>
+						<li><a href="/tags/tirunelveli.html">Tirunelveli</a></li>
+						<li><a href="/tags/tiruppur-and-karur.html">Tiruppur</a></li>
+						<li><a href="/tags/vellore.html">Vellore</a></li>
+						<li><a href="/tags/avadi.html">Avadi</a></li>
+						<li><a href="/tags/thoothukudi.html">Thoothukudi</a></li>
+						<li><a href="/tags/hyderabad.html">Hyderabad</a></li>
+						<li><a href="/tags/warangal.html">Warangal</a></li>
+						<li><a href="/tags/nizamabad.html">Nizamabad</a></li>
+						<li><a href="/tags/karimnagar.html">Karimnagar</a></li>
+						<li><a href="/tags/medak.html">Medak</a></li>
+						<li><a href="/tags/khammam.html">Khammam</a></li>
+						<li><a href="/tags/mahbubnagar.html">Mahbubnagar</a></li>
+						<li><a href="/tags/nalgonda.html">Nalgonda</a></li>
+						<li><a href="/tags/adilabad.html">Adilabad</a></li>
+						<li><a href="/tags/banswada.html">Banswada</a></li>
+						<li><a href="/tags/kanpur.html">Kanpur</a></li>
+						<li><a href="/tags/lucknow.html">Lucknow</a></li>
+						<li><a href="/tags/ghaziabad.html">Ghaziabad</a></li>
+						<li><a href="/tags/agra.html">Agra</a></li>
+						<li><a href="/tags/varanasi.html">Varanasi</a></li>
+						<li><a href="/tags/meerut.html">Meerut</a> </li>
+						<li><a href="/tags/allahabad.html">Allahabad</a></li>
+						<li><a href="/tags/bareilly.html">Bareilly</a></li>
+						<li><a href="/tags/aligarh.html">Aligarh</a></li>
+						<li><a href="/tags/moradabad.html">Moradabad</a></li>
+						<li><a href="/tags/dehradun.html">Dehradun</a></li>
+					</ul>
+				</div>
+				
+			
+				<div class="city-con">
+				<ul>
+					  
+					<li><a href="/tags/haridwar.html">Haridwar</a></li>
+					<li><a href="/tags/roorkee.html">Roorkee</a></li>
+					<li><a href="/tags/badrinath.html">Badrinath</a></li>
+					<li><a href="/tags/rudrapur.html">Rudrapur</a></li>
+					<li><a href="/tags/kashipur.html">Kashipur</a> </li>
+					<li><a href="/tags/rishikesh.html">Rishikesh</a></li>
+					<li><a href="/tags/kedarnath.html">Kedarnath</a></li>
+					<li><a href="/tags/haldwani.html">Haldwani</a> </li>
+					<li> <a href="/tags/rudraprayag.html">Rudraprayag</a>  </li>
+					<li> <a href="/tags/kolkata.html">Kolkata</a>            </li>
+					<li>     <a href="/tags/asansol.html">Asansol</a> </li>
+					<li> <a href="/tags/siliguri.html">Siliguri</a> </li>
+					<li> <a href="/tags/durgapur.html">Durgapur</a> </li>
+					<li> <a href="/tags/bardhaman.html">Bardhaman</a> </li>
+					<li> <a href="/tags/malda.html">Malda</a>   </li>
+					<li> <a href="/tags/baharampur.html">Baharampur</a>  </li>
+					<li>  <a href="/tags/habra.html">Habra</a>  </li>
+					<li> <a href="/tags/jalpaiguri.html">Jalpaiguri</a> </li>
+					<li>       <a href="/tags/kharagpur.html">Kharagpur</a>  </li>
+					<li><a href="/tags/guwahati.html">Guwahati</a>   </li>
+					<li><a href="/tags/agartala.html">Agartala</a></li>
+					<li> <a href="/tags/dimapur.html">Dimapur</a> </li>
+					<li> <a href="/tags/shillong.html">Shillong</a> </li>
+					<li><a href="/tags/aizawl.html">Aizawl</a></li>
+					<li><a href="/tags/imphal.html">Imphal</a> </li>
+					<li><a href="/tags/silchar.html">Silchar</a></li>
+					<li><a href="/tags/bongaigaon.html">Bongaigaon</a></li>
+					<li><a href="/tags/dibrugarh.html">Dibrugarh</a></li>
+            
+				</ul>
+				</div>
+				
+				
+				
+				
+				</div>
+				
+				</div>
+
+				<div class="news-city">
+				<div class="heading-border">
+				<h2 class="seo-news-heading2">NEWS BY CATEGORIES</h2>
+				<div class="clearfix"></div>
+				</div>
+
+				<div class="city-con">
+				<ul>
+					<li><a href="/news.html">News</a></li>
+					<li><a href="/nation/index.html">India</a></li>
+					<li><a href="/state.html">States</a></li>
+					<li><a href="/world/index.html">World</a></li>
+					<li><a href="/southasia/index.html">South Asia</a></li>
+					<li><a href="/business/index.html">Business</a></li>
+					<li><a href="/sports/index.html">Sports</a></li>
+					<li><a href="/sports/cricket/index.html">Cricket</a></li>
+					<li><a href="/sci-tech/index.html">Sci-tech</a></li>
+					<li><a href="/entertainment">Entertainment</a></li>
+					<li><a href="/health">Health</a></li>
+					<li><a href="/blog/allblog.html">Blogs</a></li>				
+					<li><a href="/exclusive/index.html">Exclusive</a></li>
+					<li><a href="/photogallery.html">Photos</a></li>
+					<li><a href="/videos/default.html">Videos</a></li>
+					<li><a href="/live">Live TV</a></li>
+					<li><a href="/sports/football/index.html">Football</a></li>
+					<li><a href="/sports/tennis/index.html">Tennis</a></li>				
+					<li><a href="/sports/motorsports/index.html">Motorsport</a></li>
+					<li><a href="/sports/golf/index.html">Golf</a></li>
+					<li><a href="/entertainment/bollywood.htm">Bollywood</a></li>
+					<li><a href="/entertainment/hollywood.htm">Hollywood</a></li>
+					<li><a href="/entertainment/celebrity.htm">Celebrity</a></li>
+					<li><a href="/entertainment/gourmet">Recipes</a></li>
+					<li><a href="/business/gadgets/index.html">Gadgets</a></li>
+					<li><a href="/business/automobiles/index.html">Automobiles</a></li>
+					<li><a href="/ayurveda">Ayurveda</a></li>
+					<li><a href="/news/health/healthy-eating">Healthy Eating</a></li>
+				</ul>
+				</div>
+				</div>
+				</div>';
+
+return $output;    	
+}
+
+function tags_page(){
+	
+global $base_url;
+	 $build = array();	
+	 $header = '<div class="full-story-head">
+  <h1 class="seo-heading-gh"><a href="/tags">BROWSE NEWS</a> BY EVENTS, PEOPLE, PLACES AND SUBJECTS</h1></div>
+	 <div class="alphabet">
+		<ul class="alpha-list">
+		<li><a href="http://zeenews.india.com/tags/title-a.html">A</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-b.html">B</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-c.html">C</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-d.html">D</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-e.html">E</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-f.html">F</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-g.html">G</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-h.html">H</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-i.html">I</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-j.html">J</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-k.html">K</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-l.html">L</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-m.html">M</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-n.html">N</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-o.html">O</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-p.html">P</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-q.html">Q</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-r.html">R</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-s.html">S</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-t.html">T</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-u.html">U</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-v.html">V</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-w.html">W</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-x.html">X</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-y.html">Y</a></li>
+		<li><a href="http://zeenews.india.com/tags/title-z.html">Z</a></li>
+		
+		</ul>
+	</div>';
+	  $args = explode('-',arg(1));	
+	 // print_r($args);  
+	  $arg1 = substr($args[1], 0, 1);
+	 
+		//echo strlen("rahul"); 
+		 //echo ctype_lower($arg1)  ;
+		$arrurl = array('tags/title-a.html','tags/title-b.html','tags/title-c.html','tags/title-d.html','tags/title-e.html','tags/title-f.html',
+						'tags/title-g.html','tags/title-h.html','tags/title-i.html','tags/title-j.html','tags/title-k.html','tags/title-l.html',
+						'tags/title-m.html','tags/title-n.html','tags/title-o.html','tags/title-p.html','tags/title-q.html','tags/title-r.html',
+						'tags/title-s.html','tags/title-t.html','tags/title-u.html','tags/title-v.html','tags/title-w.html','tags/title-x.html',
+						'tags/title-y.html','tags/title-z.html');
+		//$arrurl = array('tags/title-a.html');
+		$arrname=drupal_get_path_alias();
+			if (in_array($arrname, $arrurl)) {
+			$content .= views_embed_view('zn_all_tags','block_1');	
+			$build['content'] = array('#markup' => $header.$content);
+			return $build;			
+		 	}
+		else{ 
+		//Test - drupal_not_found();
+		header("Location: /404.html",TRUE,301);//$content.= '<!-- Path URLs' . arg(1) . '-->';	
+	}
+}
+
+
+	
+
+
+

@@ -1,0 +1,1785 @@
+<?php
+function zeenews_nodequeue_node_presave($node) {
+    if ($node->type == 'photo_gallery' )
+    {
+
+        if (!empty($node->nid) && $node->field_section['und']['0']['tid']=='615683')        {
+			//print_r($node);die;
+            //    dpm($node);
+            //  dpm($node->original->path["pathauto"]);
+          $node->path["pathauto"]=0;
+            module_load_include('inc','pathauto','pathauto');
+            $node->path["alias"] = pathauto_cleanstring(strtolower('bihar-assembly-election-2015/photos/') . $node->title. '-' . $node->nid);
+
+        }
+//        $node->path["alias"]=$node->original->path["alias"];
+        //print $node->original->title;
+    }
+    if ($node->type == 'videos' )
+    {
+
+        if (!empty($node->nid) && $node->field_video_section['und']['0']['tid']=='615684')        {
+			//print_r($node);die;
+            //    dpm($node);
+            //  dpm($node->original->path["pathauto"]);
+          $node->path["pathauto"]=0;
+            module_load_include('inc','pathauto','pathauto');
+            $node->path["alias"] = pathauto_cleanstring(strtolower('bihar-assembly-election-2015/videos/') . $node->title. '-' . $node->nid);
+
+        }
+//        $node->path["alias"]=$node->original->path["alias"];
+        //print $node->original->title;
+    }
+}
+function zeenews_nodequeue_node_insert($node) {
+	
+	 if($node->type == 'live_blog_data' && $node->is_new) {
+//field_select_live_blog
+		// print_r($node);die;
+		 
+	 db_update('node') // Table name no longer needs {}
+  ->fields(array(
+    'changed' => $node->created, 
+    'created' => $node->created,  
+  ))
+  ->condition('nid',$node->field_select_live_blog['und']['0']['target_id'] , '=')
+  ->execute();
+		 
+		 
+	}
+	
+  /*$nid = $node->nid;
+  $type = $node->type;
+  $brief = $node->field_isyoutube['und']['0']['value'];
+  $date1 = mktime("11", "00", "00", date('m', time()), date('d', time()), date('Y', time()));
+					//$date_11 = date('m/d/Y h:i:s a', $date1);
+	$date2 =strtotime("-1 day", $date1);
+	$date3 =strtotime("1 day", $date1);
+ //print_r($node);die;
+  // only process project node
+  if ($type != 'zeenews_article') {
+    return FALSE;
+  }
+  if ($brief != '1') {
+    return FALSE;
+  }
+  // I've only one nodequeue where a specific node type should always be 
+  // added so this is taken from the mysql nodequeue_queue table
+  $queue_id = '144';
+$qids = array('143','144');
+  // subqueue id, exists even if we created a really basic nodequeue (from nodequeue_subqueue table)
+ // $sqid = '144';
+ // $queue = nodequeue_load('144');
+  if (count($qids)) {
+	    $queues = nodequeue_load_queues($qids);
+      foreach ($queues as $queue) {
+		
+	if(($node->changed <= $date1) && ($node->changed >= $date2)){
+	//	 print_r(format_date($node->changed,'custom', 'l, F j, Y - H:i'));echo "<br />";
+		// echo $date = date('m/d/Y h:i:s a', $date1);echo "<br />";
+	//	 echo date('Y-m-d H:i:s a', strtotime("-1 day", $date2));echo "<br />";
+	//	  print_r($node);die;
+		
+		$queue->qid =='143';
+		  $subqueues = nodequeue_load_subqueues_by_queue('143');
+		   $subqueue = array_shift($subqueues);
+
+		  if (function_exists('views_invalidate_cache')) {
+			views_invalidate_cache();
+		  }
+
+		  nodequeue_subqueue_add($queue, $subqueue, $nid);
+	}
+	if(($node->changed > $date1) && ($node->changed <= $date3)){
+		 //print_r(format_date($node->changed,'custom', 'l, F j, Y - H:i'));echo "<br />";
+		 //echo $date = date('m/d/Y h:i:s a', $date1);echo "<br />";
+		// echo date('Y-m-d H:i:s a',  $date3); echo "<br />";
+		// die;
+		$queue->qid =='144';
+		  $subqueues = nodequeue_load_subqueues_by_queue('144');
+		   $subqueue = array_shift($subqueues);
+
+		  if (function_exists('views_invalidate_cache')) {
+			views_invalidate_cache();
+		  }
+
+		  nodequeue_subqueue_add($queue, $subqueue, $nid);
+	}
+}
+}
+*/
+	if ($node->type == 'photo_gallery' )
+    {
+		//
+
+        if ($node->field_section['und']['0']['tid']=='615683')        {
+			//print_r($node);
+            $node->path["pathauto"]=0;
+            module_load_include('inc','pathauto','pathauto');
+            $path1 =pathauto_cleanstring(strtolower('bihar-assembly-election-2015/photos/') . $node->title. '-' . $node->nid);
+            $path = array('source' => "node/$node->nid", 'alias' => $path1);
+            path_save($path);
+            //$node->path["alias"] = $path1;
+            //print_r($node);
+            //die();
+            //field_attach_update('node', $node);
+            //die;
+                //dpm($node);
+            //node_insert_urlupdate();
+            //  dpm($node->original->path["pathauto"]);
+        }
+//        $node->path["alias"]=$node->original->path["alias"];
+        //print $node->original->title;
+    }
+    if ($node->type == 'videos' )
+    {
+	    if ($node->field_video_section['und']['0']['tid']=='615684')        {
+			//print_r($node);
+            $node->path["pathauto"]=0;
+            module_load_include('inc','pathauto','pathauto');
+            $path1 =pathauto_cleanstring(strtolower('bihar-assembly-election-2015/videos/') . $node->title. '-' . $node->nid);
+            $path = array('source' => "node/$node->nid", 'alias' => $path1);
+            path_save($path);
+  
+        }
+
+    }
+
+}
+
+
+
+
+function zeenews_nodequeue_custom_theme() {
+  global $conf;
+  $args = arg();
+  $alias_parts = explode('/', drupal_get_path_alias());
+ 
+	
+	$term = taxonomy_term_load(arg(2));    
+    if(arg(0) == "taxonomy" && arg(1) == "term" && $term->vocabulary_machine_name == "zee_sangam_sections"){   
+	if (isset($args[3]) && $args[3] == "edit") {
+				//if ( isset(arg(2)) && arg(2) == "edit") {
+					return array($conf['admin_theme']);
+			}else{
+
+				return 'zeesangam_th';
+			}
+	  //return 'zeesangam_th';
+	}
+	if (count($alias_parts[1]) && $alias_parts[1] == 'sangam') {
+		return 'zeesangam_th';
+	}
+ 	if (arg(0) == 'node' && is_numeric(arg(1))) {
+		$node_to_check = node_load(arg(1));
+		if(($node_to_check->type=='zee_sangam_news') ||($node_to_check->type=='zee_sangam_videos') ||($node_to_check->type=='zee_sangam_programme')){
+			$args = arg();
+  // Set the admin theme when viewing a diff comparison with the diff module.
+			if (isset($args[2]) && $args[2] == "edit") {
+				//if ( isset(arg(2)) && arg(2) == "edit") {
+					return array($conf['admin_theme']);
+			}else{
+
+				return 'zeesangam_th';
+			}
+		}
+	}
+	// print_r($conf);
+}
+/**
+ * Implements hook_perm().
+ */
+
+
+
+
+function zeenews_nodequeue_permission() {
+ return array(
+    
+    'access zeeent' => array(
+      'title' => t('Access Zee Entertainment menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeehealth' => array(
+      'title' => t('Access Zee Health menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeenews queue' => array(
+      'title' => t('Access Zee News Queue menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeesports' => array(
+      'title' => t('Access Zee Sports menu'),
+      'description' => t('Access menu Links.'),
+    ),
+    'access zeeayurveda' => array(
+      'title' => t('Access Zee Ayurveda menu'),
+      'description' => t('Access menu Links.'),
+    ),
+     'access zeebusiness' => array(
+      'title' => t('Access Zee Business menu'),
+      'description' => t('Access menu Links.'),
+    ),
+  );
+}
+	
+	
+
+/**
+ * Implements hook_menu().
+ */
+function zeenews_nodequeue_menu() {
+  $items = array();
+
+  /*$items['admin/set-home-page'] = array(
+    'title' => 'Set Home Page',
+    'page callback' => 'zee_ent_set_home_page',
+    'weight' => 10,
+     'access arguments' => array('access zeeent'),
+    'type' => MENU_NORMAL_ITEM,
+  );*/
+ /* $items['admin/set-home-page/zee-marathi'] = array(
+    'title' => 'Zee Marathi',
+    'page callback' => 'zee_marathi_set_home_page',
+    'weight' => 11,
+     'access arguments' => array('access zeemarathi'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/zee-bengali'] = array(
+    'title' => 'Zee Bengali',
+    'page callback' => 'zee_bengali_set_home_page',
+    'weight' => 12,
+     'access arguments' => array('access zeebengali'),
+    'type' => MENU_NORMAL_ITEM,
+  );*/
+  
+  $items['admin/set-home-page/zee-ent'] = array(
+    'title' => 'Set Home Page Zee Entertainment',
+    'page callback' => 'zee_ent_set_home_page',
+    'weight' => 11,
+     'access arguments' => array('access zeeent'),
+     //'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-health'] = array(
+    'title' => 'Set Home Page Zee Health',
+    'page callback' => 'zee_health_set_home_page',
+    'weight' => 12,
+     'access arguments' => array('access zeehealth'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zeenews-queue'] = array(
+    'title' => 'Set Home Page Zee News Queue',
+    'page callback' => 'zee_news_queue_set_home_page',
+    'weight' => 15,
+     'access arguments' => array('access zeenews queue'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-sports'] = array(
+    'title' => 'Set Home Page Zee Sports',
+    'page callback' => 'zee_sports_set_home_page',
+    'weight' => 13,
+     'access arguments' => array('access zeesports'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/set-home-page/zee-ayurveda'] = array(
+    'title' => 'Set Home Page Zee Ayurveda',
+    'page callback' => 'zee_ayurveda_set_home_page',
+    'weight' => 14,
+     'access arguments' => array('access zeeayurveda'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+   $items['admin/set-home-page/zee-business'] = array(
+    'title' => 'Set Home Page Zee Business',
+    'page callback' => 'zee_business_set_home_page',
+    'weight' => 15,
+     'access arguments' => array('access zeebusiness'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/content/brief-news'] = array(
+   'title' => 'Recent News: List Links',   
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('module_name_manage'),
+        'access arguments' => array('access administration pages'),
+  );
+  
+  
+ $items['get/ajax/%'] = array(
+    'page callback' => 'myModule_ajax_get_ajax', // Render HTML
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'delivery callback' => 'myModule_ajax_callback',  // Magic goes here
+  );
+  
+$items['json/nodes'] = array(
+'title' => 'JSON Nodes',
+'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+'page callback' => 'json_feed_page',
+);
+$items['fancystuff/json'] = array(
+        'access callback'   => true, // available to all
+        'page callback'     => 'mymodule_fancystuff_object', // defined below
+        //'delivery callback' => 'drupal_json_output' 
+    );
+    
+    $items['admin/content/newwebform/import-form'] = array( 
+     'title' => t('Webform Import - News '),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('webform_form_new'),
+    'access arguments' => array('access gallery import'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+ 
+  return $items;
+}
+
+
+/*
+* Import the news gallery form */
+
+function webform_form_new($form, &$form_state) {
+		$options=array();
+		$gallery_list =  simplexml_load_file('http://54.85.78.249/dailyastro');
+		foreach ($gallery_list->item as $option){
+		 	$options[trim($option->url)]=trim($option->Sid);
+		}
+	  
+		$form['webform_form_new'] = array(
+			'#type' => 'select',
+			'#options' => $options,
+			'#required' => TRUE,
+			'#title' => 'Select astro',
+			'#prefix' => '<div id="webform-new-form">',
+			'#suffix' => '</div>',
+		  );
+	  
+		$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Import')
+		);
+	return $form;
+}
+
+function webform_form_new_submit($form, &$form_state) {
+	
+	make_webform_new($form_state['values']['webform_form_new']);
+	//http://54.85.78.249/dailyastro
+	drupal_set_message(t('Webform Successfully created'));
+}
+function make_webform_new($gallery_import) {
+	//print_r($gallery_import);
+	$gallery_data1 =  simplexml_load_file('http://54.85.78.249/dailyastro');
+			foreach ($gallery_data1->item as $gallery_data){
+				if(trim($gallery_data->url) ==trim($gallery_import)){
+				    $title =$gallery_data->Sid;
+				  // $image_url =$gallery_data->image;
+				  
+				}
+				
+			}
+	//module_load_include('inc', 'webform', 'webform.module');
+  //module_load_include('inc', 'webform', 'includes/webform.submissions');
+	
+	module_load_include('inc', 'webform', 'includes/webform.submissions');
+
+// Load the node and submission.
+$node = node_load('1427159');
+$submission = webform_get_submission($node->nid, trim($title));
+
+
+
+// Change submission data.
+//
+// To see what's available, install Devel and run dpm($submission);
+$submission->data['4']['0'] = 'Update You will be high on luck, creativity, gains and communications.
+Money matters will be good. You will experience a certain amount of vibrancy in finances.
+Family life will be quite happy, while health will be good throughout.
+
+Yours Lucky Colour is Violet
+Yours Lucky No. is 6 ';
+
+// Finally, update the submission.
+webform_submission_update($node->nid, $submission);
+
+ /*$node = node_load('1427159'); //nid is the node id of your webform
+  global $user;
+
+ //the values to save
+  $data = array(
+    1 => array('value' => array('1')),
+    2 => array('value' => array('1446748200')),
+    3 => array('value' => array('')),
+    4 => array('value' => array('update')),
+    5 => array('value' => array('')),
+    6 => array('value' => array('6')),
+    7 => array('value' => array('7')),
+    8 => array('value' => array('8')),
+    9 => array('value' => array('9')),
+    10 => array('value' => array('10')),
+    11 => array('value' => array('11')),
+    12 => array('value' => array('12')),
+    13 => array('value' => array('13')),
+    14 => array('value' => array('14')),
+    15 => array('value' => array('15')),
+    
+  );
+ 
+  module_load_include('inc', 'webform', 'includes/webform.submissions');
+  
+  // This methods will arrange $data in the right way
+
+ $data = webform_submission_data($node, $data);
+
+  $submission = (object) array(
+    'nid' => '1427159',
+    'uid' => $user->uid,
+    'submitted' => REQUEST_TIME,
+    'remote_addr' => ip_address(),
+    'is_draft' => FALSE,
+    'data' => $data,
+  );
+
+ 
+ webform_submission_insert($node, $submission);*/
+
+	
+}
+
+
+function mymodule_fancystuff_object() {
+    return  drupal_json_output(views_get_view_result('zn_mobile_app_hp','block_2','120183'));
+  
+}
+function json_feed_page() {
+/*
+$query = db_select('node', 'n');
+$query->fields('n', array('nid', 'title', 'uid'));
+$query->range(0,50);
+$results = $query->execute()->fetchAssoc();
+
+$output = drupal_json_output($results);
+
+print $output;*/
+/*
+$result = db_query("SELECT * FROM {node} n WHERE n.type ='zeenews_article' LIMIT 2");
+
+$json_data = array();
+// foreach ($result as $record) {
+//     $node = node_load($record->nid);
+//     $json_data[] = array('nid' => $node->nid, 'title' => $node->title);
+// }*/
+   echo '"Home": {
+		 "Section": ['
+	;
+    $counts1 = array('120183','120186');
+	foreach ($counts1 as $counts2) {
+		echo '{';
+			//print_r($counts2);
+			$term = taxonomy_term_load($counts2);
+			print '"title": "' . $term->name  . '",';
+			$view= views_get_view_result('zn_mobile_app_hp','block_2',$counts2);
+			$counts = count($view);
+			//print_r($view);
+			echo '"News": ['; 
+    foreach($view as $result1) {
+		
+		 $img1 = image_style_url("zm_700x400", $result1->field_field_image['0']['rendered']['#item']['uri']); 
+			if(!empty($img1)){
+					$img2=$img1;
+			}
+		 $json_data[]= array(//'Title'=>$result1->node_title,
+				//'Image'=>$img2,
+				'Time'=>$result1->node_created,
+				'NewsID'=>$result1->nid,
+				); 
+	}
+    print drupal_json_encode($json_data);
+    	echo ']';
+		echo '},';
+
+	}
+	echo '  ]
+	},'; 
+
+    exit;
+
+}
+function myModule_ajax_get_ajax($nid) {
+  // Just load a node and return teaser, you can return whatever you want including forms
+ // $node = node_load($nid);
+ //print_r($nid);
+ if(is_numeric($nid)){
+print views_embed_view('live_block_data_management','block_1',$nid);
+}
+  //return node_view($node, 'teaser');
+}
+
+function myModule_ajax_callback($page_callback_result) {
+  // Only render content
+  $content = drupal_render($page_callback_result);
+
+  // Add CSS ans JS files, add some markup
+  $html = '<html><head><title></title>' . drupal_get_css() . drupal_get_js() . '</head><body class="jquery-ajax-load">' . $content . '</body></html>';
+  print $html;
+
+  // Perform end-of-request tasks.
+  drupal_page_footer();
+}
+
+
+function module_name_manage() {
+    $db_result = db_query( "select qid,nid ,position from {nodequeue_nodes} order by position limit 0,10");   
+    // create array and add one element called data
+    $rows= array();
+    $form['#tree'] = TRUE;
+    $max = 60;
+    foreach($db_result as $row){   
+        $title = $row->nid;
+        if(strlen($title)>$max)
+            $title = substr($title,0,$max).' ...';
+        $form['slides'][$row->qid]['id'] = array(
+            '#type' => 'hidden',      
+            '#default_value' => $row->qid,       
+        );
+        // Textfield to hold content id.
+        $form['slides'][$row->qid]['title'] = array(
+            '#type' => 'item',        
+            '#title' => $title
+        );     
+        // This field is invisible, but contains sort info (weights).
+        $form['slides'][$row->qid]['weight'] = array(
+            '#type' => 'weight',
+            '#title' => t('Weight'),
+            '#title_display' => 'invisible',
+            '#default_value' => $row->position,
+        );
+    }
+     
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Save changes'));
+    return $form;
+}
+
+
+
+/**
+ * Implements hook_theme().
+ */
+
+function zeenews_nodequeue_theme($existing, $type, $theme, $path) {
+	
+  return array(
+    
+
+'live_blog_data_node_form' => array(
+      'render element' => 'form',
+      'template' => 'live-blog-data-node-form',
+      'path' => drupal_get_path('module', 'zeenews_nodequeue'),
+    ),
+    'module_name_manage' => array(
+            'render element' => 'form',
+        ),
+        
+  );
+ 
+        
+  
+}
+
+
+function theme_module_name_manage($variables) {
+    $form = $variables['form'];
+  
+    $rows = array();
+    foreach (element_children($form['slides']) as $nid) {
+        $form['slides'][$nid]['weight']['#attributes']['class'] = array('slides-order-weight');
+        $rows[] = array(
+            'data' => array(
+                array('class' => array('slide-cross')),               
+                    drupal_render($form['slides'][$nid]['title']),
+                    drupal_render($form['slides'][$nid]['weight']),       
+                ),
+            'class' => array('draggable'),
+        );
+    }
+  
+    $header = array('',t('title'),t('position'));
+    $output = drupal_render($form['note']);
+    $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'slides-order')));
+    $output .= drupal_render_children($form);
+  
+    drupal_add_tabledrag('slides-order', 'order', 'sibling', 'slides-order-weight');
+  
+    return $output;
+}
+/*
+function module_name_manage_submit($form, &$form_state) {
+    $slides = array(); 
+    foreach ($form_state['values']['slides'] as $slide) {   
+        $slides[] = array(
+            'id' => $slide['id'],       
+            'weight' => $slide['weight'],
+        );         
+    }  
+    if (!empty($slides)) {
+        usort($slides, '_module_name_arraysort');
+    }  
+    $position = 1;
+    foreach($slides as $slide){
+        $id = $slide['id'];
+        $sql = "UPDATE {nodequeue_nodes} SET position={$position} WHERE id = {$id}";
+        db_query($sql);
+        $position++;
+    }
+  
+    drupal_set_message(t('Ordering have been saved.'));
+}
+ 
+// Custom array sort function by weight.
+function _module_name_arraysort($a, $b) {
+    if (isset($a['weight']) && isset($b['weight'])) {
+        return $a['weight'] < $b['weight'] ? -1 : 1;
+    }
+    return 0;
+}*/
+/**
+ * Implements Entertainment editor nodequeue list zee_ent_set_home_page().
+ */
+ 
+function zee_ent_set_home_page(){
+	    $output = '';
+			
+	$rid='5';
+	
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid ", array(':rid' => $rid));
+	
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Health editor nodequeue list zee_health_set_home_page().
+ */
+ 
+function zee_health_set_home_page(){
+	    $output = '';
+			
+	$rid='6';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements News Queue editor nodequeue list zee_news_queue_set_home_page().
+ */
+ 
+function zee_news_queue_set_home_page(){
+	    $output = '';
+			
+	$rid='7';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('subqueues')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		$qids = $row->qid;
+		$subqueues = nodequeue_load_subqueues_by_queue($qids);
+		foreach ($subqueues as $subqueue) {
+		
+			if( $row->size == $subqueue->count){
+				$sub_text = 'Queue full';
+				
+			}
+			elseif($row->size=='0'){
+				$sub_text = $subqueue->count.' in queue';
+			}elseif($row->size > $subqueue->count){
+				$sub_text = $subqueue->count.' in queue';
+			}
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+								array('class' => array('nodequeue-subqueues'), 'data' => $sub_text),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+		}
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Sports editor nodequeue list zee_sports_set_home_page().
+ */
+ 
+function zee_sports_set_home_page(){
+	    $output = '';
+			
+	$rid='8';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Ayurveda editor nodequeue list zee_ayurveda_set_home_page().
+ */
+ 
+function zee_ayurveda_set_home_page(){
+	    $output = '';
+			
+	$rid='9';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+
+/**
+ * Implements Ayurveda editor nodequeue list zee_business_set_home_page().
+ */
+ 
+function zee_business_set_home_page(){
+	    $output = '';
+			
+	$rid='12';
+	$result = db_query("SELECT nq.title,nq.size,nq.qid FROM {nodequeue_queue} nq INNER JOIN {nodequeue_roles} nr ON nr.qid=nq.qid
+	WHERE nr.rid= :rid", array(':rid' => $rid));
+	$rows = array();
+	$header = array(
+					array('data' => t('Title')),
+					array('data' => t('Max nodes')),
+					array('data' => t('Operation')),
+			 );
+ 
+	foreach ($result as $row) {
+		
+     		$rows[] = array(
+							array('class' => array('nodequeue-title'), 'data' => check_plain($row->title)),
+							array('class' => array('nodequeue-max-nodes'), 'data' => $row->size == 0 ? t('Infinite') : $row->size),
+     						array('class' => array('nodequeue-operation'), 'data' => l(t('View'), "admin/structure/nodequeue/$row->qid/view") ),
+			);
+ 
+	}
+	 
+	
+	$output .= theme('table', array('header' => $header, 'rows' => $rows));
+	$output .= theme('pager', array('tags' => NULL));
+	
+	
+	 return $output;
+}
+function zeenews_nodequeue_form_alter(&$form, &$form_state, $form_id){
+		if((arg(0)=='admin') && (arg(1)=='structure') && (arg(2)=='nodequeue')){
+		
+			if($form_id=='nodequeue_arrange_subqueue_form_'.arg(3)){
+				unset($form['actions']['clear']);
+				unset($form['actions']['reverse']);
+				unset($form['actions']['shuffle']);
+			}
+		
+	    } 
+	     if($form_id=='live_blog_node_form'){
+		$form['field_live_blog_collection']['#access']='0';
+			//print_r($form);
+		}
+	    if($form_id=='live_blog_data_node_form'){
+			$form['title']['#maxlength']='300';
+			//print_r($form['title']);
+		}
+		 if($form_id=='live_blog_data_node_form'){
+			$form['clear'] = array(
+            '#type' => 'submit',
+            '#value' => 'View Data',
+            '#submit' => array('live_blog_data'),
+            '#weight' => '1',
+
+        );
+        $form['actions']['addmore'] = array(
+      '#type'   => 'submit',
+      '#value'  => t('Save and Add More'),
+      '#access' => TRUE,
+      '#weight' => 2,
+      '#submit' => array('node_form_submit', 'mysubmit_node_submit'),
+      
+    );
+       //$form['actions']['submit']['#value'] = 'Save And Add More';
+       // $form['actions']['submit']['#submit'][] = 'mysubmit_node_submit';
+       // print_r($form['actions']);
+         if((arg(0)=='node') && (is_numeric(arg(1))) && (arg(2)=='edit')){
+
+        }else{
+        $form['field_select_live_blog']['und']['#default_value']=empty($form_state['values']['field_select_live_blog']['und']['0']['target_id']) ? '' : $form_state['values']['field_select_live_blog']['und']['0']['target_id'];
+   }// print_r( $form);
+
+/*$form['field_select_live_blog']['und']['#ajax'] = array(
+                 //   'event' => 'change',
+                    'callback' => 'custom_ajax_callback',
+                 'wrapper' => 'replace_textfield_div1',
+                   //  'effect' => 'fade',
+            );
+
+          
+ $form['replace_textfield1'] = array(
+   // '#type' => 'markup',
+    //'#title' => t("The default value will be changed"),
+     '#type' => 'item',
+
+  '#title' => t(''),
+
+    '#markup'  => empty($form_state['values']['field_select_live_blog']['und']['0']['target_id']) ? ' ' : views_embed_view('live_blog_data_node_form','block',$form_state['values']['field_select_live_blog']['und']['0']['target_id']),
+    '#prefix' => '<div id="replace_textfield_div1">',
+    '#suffix' => '</div>',
+    '#weight' => '4',
+    
+  );*/
+        
+         //$form['field_select_live_blog']['und']['#default_value']=empty($form_state['values']['field_select_live_blog']['und']['0']['target_id']) ? '' : $form_state['values']['field_select_live_blog']['und']['0']['target_id'];
+       // print_r($form);
+ // print_r($form['field_select_live_blog']['#value']);die;
+   // Setup field_event_1_role select
+          //  $form['field_select_live_blog']['und']['#prefix'] = '<div id="field_event_1_role_replace">';
+            //$form['field_select_live_blog']['und']['#suffix'] = '</div>';
+          //  $form['field_event_1_role']['und']['#options'] = custom_second_dropdown_options($value_field_event_1);
+        //  $form['field_select_live_blog']['und']['#default_value'] = isset($form_state['values']['field_select_live_blog']) ? $form_state['values']['field_select_live_blog'] : '';
+ //$form['field_select_live_blog']['und']['#default_value']=empty($form_state['values']['field_select_live_blog']['und']['0']['target_id']) ? '' : $form_state['values']['field_select_live_blog']['und']['0']['target_id'];
+    
+
+ 
+			}
+   
+}
+
+/*
+function custom_ajax_callback(&$form, &$form_state) {
+	
+	$form_state['values']['field_select_live_blog']['und']['0']['target_id'] = $form_state['values']['field_select_live_blog']['und']['0']['target_id'];
+
+//drupal_set_message('Please check the details you entered  : ' . $form_state['values']['title']);
+   // $form_state['storage']['clear'] = TRUE; // this will cause the form to be rebuilt, entering the confirm part of the form
+   // $form_state['rebuild'] = TRUE;
+   //drupal_set_message('test'.$form_state['values']['field_select_live_blog']['und']['0']['target_id']);
+     return $form['replace_textfield1'];
+}*/
+function live_blog_data(&$form, &$form_state) {
+	$form_state['values']['field_select_live_blog']['und']['0']['target_id'] = $form_state['values']['field_select_live_blog']['und']['0']['target_id'];
+
+//drupal_set_message('Please check the details you entered  : ' . $form_state['values']['title']);
+    $form_state['storage']['clear'] = TRUE; // this will cause the form to be rebuilt, entering the confirm part of the form
+    $form_state['rebuild'] = TRUE;
+    drupal_set_message($form_state['values']['field_select_live_blog']['und']['0']['target_id']);
+    //return $form['field_select_live_blog'];
+}
+
+function mysubmit_node_submit($form, &$form_state) {
+  $form_state['redirect'] = 'node/add/live-blog-data';
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function zeenews_nodequeue_block_info() {
+  $blocks = array();
+
+  $blocks['hindi_mainlead_front'] = array(
+    'info' => t('Hindi Mainlead Front'),
+  );
+  $blocks['marathi_mainlead_front'] = array(
+    'info' => t('Marathi Mainlead Front'),
+  );
+  $blocks['marathi_minilead_front'] = array(
+    'info' => t('Marathi Minilead Front'),
+  );
+  $blocks['biz_wire_xml'] = array(
+    'info' => t('Biz Wire XML'),
+  );
+   $blocks['biz_video_xml'] = array(
+    'info' => t('Biz Video XML'),
+  );
+   $blocks['dds_video_xml'] = array(
+    'info' => t('Dds Video XML'),
+  );
+   $blocks['dds_video_xml'] = array(
+    'info' => t('Dds Video XML'),
+  );
+  /* English  lead */
+   $blocks['english_mainlead_front'] = array(
+    'info' => t('English Mainlead Front'),
+  );
+  $blocks['english_minilead_front'] = array(
+    'info' => t('English Minilead Front'),
+  );
+	$blocks['sangam_mainlead_front'] = array(
+    'info' => t('Sangam Mainlead Front'),
+  );
+  $blocks['sangam_minilead_front'] = array(
+    'info' => t('Sangam Minilead Front'),
+  );
+  
+  $blocks['malayalam_mainlead_front'] = array(
+    'info' => t('Malayalam Mainlead Front'),
+  );
+  $blocks['malayalam_minilead_front'] = array(
+    'info' => t('Malayalam Minilead Front'),
+  );
+  return $blocks;
+
+}
+
+/**
+* Implements hook_block_view().
+*/
+function zeenews_nodequeue_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+   
+     case 'hindi_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/mainlead';
+      $block['subject'] = 'Hindi Mainlead Front';
+      $block['content'] = hindi_mainlead_result($url);
+      break;
+      case 'marathi_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/marathi/mainlead';
+      $block['subject'] = 'Marathi Mainlead Front';
+      $block['content'] = marathi_mainlead_result($url);
+      break;
+      case 'marathi_minilead_front':
+		
+		$url = 'http://zeenews.india.com/marathi/minilead';
+      $block['subject'] = 'Marathi Minilead Front';
+      $block['content'] = marathi_minilead_result($url);
+      break;
+      case 'bengali_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/bengali/mainlead';
+      $block['subject'] = 'Bengali Mainlead Front';
+      $block['content'] = bengali_mainlead_result($url);
+      break;
+      case 'bengali_minilead_front':
+		
+		$url = 'http://zeenews.india.com/bengali/minilead';
+      $block['subject'] = 'Bengali Minilead Front';
+      $block['content'] = bengali_minilead_result($url);
+      break;
+      case 'malayalam_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/malayalam/mainlead';
+      $block['subject'] = 'Malayalam Mainlead Front';
+      $block['content'] = malayalam_mainlead_result($url);
+      break;
+      case 'malayalam_minilead_front':
+		
+		$url = 'http://zeenews.india.com/malayalam/minilead';
+      $block['subject'] = 'Malayalam Minilead Front';
+      $block['content'] = malayalam_minilead_result($url);
+      break;
+      case 'biz_wire_xml':
+		
+		$url = 'http://cms.businesswireindia.com/feeds/zee/feeds.xml';
+      $block['subject'] = 'Biz Wire XML';
+      $block['content'] = biz_wire_result($url);
+      break;
+       case 'biz_video_xml':
+		
+		$url = 'http://zeenews.india.com/business/business_video.aspx';
+      $block['subject'] = 'Biz Video XML';
+      $block['content'] = biz_video_result($url);
+      break;
+       case 'dds_video_xml':
+		
+		$url = 'http://zeenews.india.com/entertainment/gourmet/desh-da-swaad/videos.xml';
+      $block['subject'] = 'Dds Video XML';
+      $block['content'] = dds_video_result($url);
+      break;
+        /* English  lead */
+       case 'english_mainlead_front':
+      $url = 'http://54.179.170.62/mainlead';
+      $block['subject'] = 'English Mainlead Front';
+      $block['content'] = english_mainlead_result($url);
+      break;
+      case 'english_minilead_front':
+		
+		$url = 'http://54.179.170.62/minilead';
+      $block['subject'] = 'English Minilead Front';
+      $block['content'] = english_minilead_result($url);
+      break;
+      
+         case 'sangam_mainlead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/sangam/mainlead.xml';
+      $block['subject'] = 'Sangam Mainlead Front';
+      $block['content'] = sangam_mainlead_result($url);
+      break;
+      case 'sangam_minilead_front':
+		
+		$url = 'http://zeenews.india.com/hindi/sangam/minilead.xml';
+      $block['subject'] = 'Sangam Minilead Front';
+      $block['content'] = sangam_minilead_result($url);
+      break;
+  }
+
+  return $block;
+}
+
+function hindi_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _hindi_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _hindi_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	  
+	    $out = '';
+	    $i = 0;
+	    $out .= '<div class="row hnd-bx">';
+	    foreach ($items as $item) {
+			if($i=='0'){
+				
+			 $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->Image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+				
+			}
+			$i++;
+      
+	    }
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+			if($j >'0'){
+	
+				$out .= '<li>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</li>';
+			}
+	      
+	            $j++;
+      
+	    }
+	     $out .='</div>
+				</ul>';
+	    $out .= '</div>';
+	   
+	    return $out;
+	}
+	
+function marathi_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _marathi_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _marathi_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+		  $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->Image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function marathi_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _marathi_minilead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+function _marathi_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+	
+/*  Bengali lead xml Block 
+ * 
+ **/	
+ function bengali_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _bengali_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _bengali_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+			$out .= '<div class="col-md-6">
+					 <a href="'.$item->path.'"> <img title="'.$item->title.'" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l($item->title,$item->path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function bengali_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _bengali_minilead_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _bengali_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+		//$block = module_invoke('zeenews_nodequeue', 'block_view', 'biz_wire_xml');
+		//$out .= $block['content'];
+    return $out;
+}
+
+/*  malayalam lead xml Block 
+ * 
+ **/	
+ function malayalam_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _malayalam_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _malayalam_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+			$out .= '<div class="col-md-6">
+					 <a href="'.$item->path.'"> <img title="'.$item->title.'" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l($item->title,$item->path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function malayalam_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _malayalam_minilead_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _malayalam_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+		//$block = module_invoke('zeenews_nodequeue', 'block_view', 'biz_wire_xml');
+		//$out .= $block['content'];
+    return $out;
+}
+
+
+/* Biz wire xml */
+
+function biz_wire_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _biz_wire_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _biz_wire_block_content($doc) {
+	//print_r($doc);
+	    $items = $doc->news;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+			if($item->subcats=='pressreleaseIND'){
+				$out .= '<li>'.$item->headline.'</li>';
+			}
+				
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+
+
+/* Biz Video xml */
+
+function biz_video_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _biz_video_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _biz_video_block_content($doc) {
+	
+	    $items = $doc->channel->item;
+	    $out = '';
+	
+	    foreach ($items as $item) {
+			
+			$out .=' <div class="col-sm-6 col-md-3"><div class="video-div">
+		 <a target="_blank" href="'.$item->link.'"><img  title="" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive"></a>	
+	  		  	';
+			$out .='</div>
+			<a target="_blank" href="'.$item->link.'">'.$item->title.'</a>
+				 	</div>';
+			
+				//$out .= l(htmlspecialchars_decode('test',ENT_QUOTES),$item->image,array('attributes' => array('target'=>'_blank'))).'</li>';
+		      
+        }
+        
+  
+    return $out;
+}
+/* Biz Video xml */
+
+function dds_video_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	            return t("Getting an error.");
+	        }
+	        return _dds_video_block_content($doc);
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	       return t("Not accessible.");
+		}
+}
+function _dds_video_block_content($doc) {
+	
+	    $items = $doc->Video;
+	    $out = '';
+	 
+	    foreach ($items as $item) {
+			//print_r($item);
+			
+			$out .=' <div class="col-sm-6 col-md-3"><div class="video-div">
+		 <a target="_blank" href="'.$item->Link.'"><img  title="" alt="'.$item->Title.'" src="'.$item->img.'" class="img-responsive"></a>	
+	  		  	';
+			$out .='</div>
+			<a target="_blank" href="'.$item->Link.'">'.$item->Title.'</a>
+				 	</div>';
+			
+				//$out .= l(htmlspecialchars_decode('test',ENT_QUOTES),$item->image,array('attributes' => array('target'=>'_blank'))).'</li>';
+		      
+        }
+        
+    return $out;
+}
+	
+/* English main lead */
+function english_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _english_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+
+function _english_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+		  $out .= '<div class="col-md-6">
+					 <a href="'.$item->path.'"> <img title="'.$item->title.'" alt="'.$item->title.'" src="'.$item->image.'" class="img-responsive fereimga qazy"></a>
+					<h2>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function english_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	            $msg = "Error parsing content XML for %url: %msg.";
+	            $vars = array('%url'=>$url, '%msg'=>$e->getMessage());
+	         //   watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	            return t("Getting an error.");
+	        }
+	        return _english_minilead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	        $msg = 'No content from %url.';
+	        $vars = array('%url' => $url);
+	        //watchdog('moviebox', $msg, $vars, WATCHDOG_WARNING);
+	        return t("Not accessible.");
+	}
+}
+function _english_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->title,ENT_QUOTES),$item->path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+	
+	
+	/**  sangam main lead */
+function sangam_mainlead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _sangam_mainlead_block_content($doc);
+	        // Otherwise we don't have any data
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+
+function _sangam_mainlead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    foreach ($items as $item) {
+		  $out .= '<div class="col-md-6">
+					 <a href="'.$item->Path.'"> <img title="'.$item->Title.'" alt="'.$item->Title.'" src="'.$item->image.'" class="img-responsive"></a>
+					<h2>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</h2>
+					 </div>';
+		}
+	  return $out;
+}
+function sangam_minilead_result($url) {
+	$http_result = drupal_http_request($url);
+	
+	    if ($http_result->code == 200) {
+			
+	        $doc = simplexml_load_string($http_result->data);
+	         
+	        if ($doc === false) {
+	          
+	            return t("");
+	        }
+	        return _sangam_minilead_block_content($doc);
+	       
+	    }
+	    else {
+	       
+	        return t("");
+	}
+}
+function _sangam_minilead_block_content($doc) {
+	    $items = $doc->node;
+	    $out = '';
+	    $j ='0';
+	    $out .='<div class="col-md-6">
+				<ul>';
+	    foreach ($items as $item) {
+				$out .= '<li>'.l(htmlspecialchars_decode($item->Title,ENT_QUOTES),$item->Path,array('attributes' => array('target'=>'_blank'))).'</li>';
+		       $j++;
+        }
+	     $out .='</div>
+				</ul>';
+    return $out;
+}
+
+
+
+/**
+ * Implements hook_node_delete().
+ */
+ /*
+function zeenews_nodequeue_node_delete($node) {
+  $nid = $node->nid;
+  $type = $node->type;
+  // only process project node
+  if ($type != 'zeenews_article') {
+    return FALSE;
+  }
+
+  if (function_exists('views_invalidate_cache')) {
+    views_invalidate_cache();
+  }
+
+  // I've only one nodequeue where a specific node type should always be 
+  // added so this is taken from the mysql nodequeue_queue table
+  $queue_id = 1;
+
+  // subqueue id, exists even if we created a really basic nodequeue (from nodequeue_subqueue table)
+  $sqid = 1;
+
+  nodequeue_subqueue_remove_node($sqid, $nid);
+}
+
+*/
+
+function zeenews_nodequeue_token_info() {
+  $info['tokens']['node']['summary-or-trimmed'] = array(
+    'name' => t('Summary or trimmed'),
+    'description' => t('The summary or body of a node trimmed to the given number of characters.'),
+    'dynamic' => TRUE,
+  );
+
+  
+
+  return $info;
+}
+
+/**
+* Implements hook_tokens().
+* Based on example from drupal.org/node/1308488.
+*/
+function zeenews_nodequeue_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  $sanitize = !empty($options['sanitize']);
+  $parse = FALSE;
+ /*
+  if ($type == 'term' && !empty($data['term'])) {
+    $parse = TRUE;
+    $term = $data['term'];
+
+    // Get content.  Try for abstract first.
+    $body_field_items = field_get_items('taxonomy_term', $term, 'field_abstract');
+    if (!isset($body_field_items[0]['value']) || ($body_field_items[0]['value'] == '')) {
+      $body_field_items = field_get_items('taxonomy_term', $term, 'field_body');
+    }
+  }*/
+
+   if ($type == 'node' && !empty($data['node'])) {
+    $parse = TRUE;
+    $node = $data['node'];
+
+    // Get content.  Try for abstract first.
+    $body_field_items = field_get_items('node', $node, 'body');
+    //if (!isset($body_field_items[0]['value']) || ($body_field_items[0]['value'] == '')) {
+    //  $body_field_items = field_get_items('node', $node, 'body');
+  //  }
+  }
+   
+  if ($parse) {
+    foreach ($tokens as $name => $original) {
+      $trimmed_or_summary = '';
+      $split_name = explode(':', $name);
+      if ($split_name[0] == 'summary-or-trimmed') {
+        if (isset($body_field_items[0]['summary']) && $body_field_items[0]['summary'] != '') {
+          $trimmed_or_summary = $body_field_items[0]['summary'];
+        }
+        else {
+          $teaser_length = 200;
+          if (isset($split_name[1])) {
+            $teaser_length = (int) $split_name[1];
+          }
+          $text = check_markup($body_field_items[0]["value"], $body_field_items[0]["format"]);
+          // When a html closing tag is immediately followed by an openening tag, put a space in between.
+          $text = preg_replace('/(<\/[^>]+?>)(<[^>\/][^>]*?>)/', '$1 $2', $text);
+          $trimmed_or_summary = truncate_utf8(strip_tags($text), $teaser_length, TRUE, FALSE);
+        }
+        $replacements[$original] = $sanitize ? filter_xss($trimmed_or_summary) : $trimmed_or_summary;
+      }
+    }
+  }
+ 
+  return $replacements;
+}
+
+
+
+	

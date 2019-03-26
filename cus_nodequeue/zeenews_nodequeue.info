@@ -1,0 +1,12 @@
+name = zeenews nodequeue listing
+description = Zee News module for nodequeue listing based on user roles
+package = ZeeNews
+dependencies[] = nodequeue
+version = VERSION
+core = 7.x
+
+
+; Information added by  packaging script on 2014-03-11
+version = "7.24"
+project = "drupal"
+
